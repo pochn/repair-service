@@ -3,289 +3,341 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แจ้งซ่อมโน้ตบุ๊กออนไลน์ — ซ่อมโน๊ตบุ๊ค เชียงใหม่</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>แจ้งซ่อมออนไลน์ — ซ่อมโน๊ตบุ๊ค เชียงใหม่</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #1e40af;
-    --primary-hover: #1d4ed8;
-    --accent: #0284c7;
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --text-main: #0f172a;
-    --text-sub: #64748b;
-    --border: #e2e8f0;
-    --danger: #ef4444;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
-  body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; }
+  body { background: linear-gradient(135deg, #ecfeff 0%, #eff6ff 100%); min-height: 100vh; color: #111827; padding-bottom: 40px; }
   
-  /* Navbar */
-  .navbar {
-    background: #fff; border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 20;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  /* Header */
+  header {
+    background: #ffffff; border-bottom: 1px solid #e5e7eb;
+    position: sticky; top: 0; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   }
-  .nav-wrap {
-    max-width: 680px; margin: 0 auto; padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between;
+  .header-wrap {
+    max-width: 580px; margin: 0 auto; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
   }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-logo {
-    width: 42px; height: 42px; border-radius: 12px; background: #eff6ff;
-    display: flex; align-items: center; justify-content: center; font-size: 20px;
+  .header-brand { display: flex; align-items: center; gap: 12px; }
+  .header-icon {
+    width: 40px; height: 40px; background: #0891b2; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; flex-shrink: 0;
   }
-  .brand-title { font-weight: 700; font-size: 16px; color: var(--primary); line-height: 1.2; }
-  .brand-desc { font-size: 12px; color: var(--text-sub); }
-  .track-link {
-    text-decoration: none; font-size: 13px; font-weight: 600;
-    color: var(--accent); background: #f0f9ff; border: 1px solid #bae6fd;
-    padding: 8px 14px; border-radius: 10px; transition: 0.2s;
+  .header-title { font-weight: 700; color: #0e7490; font-size: 16px; line-height: 1.2; }
+  .header-sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .btn-track-nav {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+    color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe;
+    padding: 8px 12px; border-radius: 12px; text-decoration: none; flex-shrink: 0; transition: 0.15s;
   }
-  .track-link:hover { background: #e0f2fe; }
+  .btn-track-nav:hover { background: #dbeafe; }
 
-  /* Container */
-  .container { max-width: 680px; margin: 24px auto 0; padding: 0 16px; }
+  /* Main Container */
+  .container { max-width: 580px; margin: 20px auto 0; padding: 0 16px; }
 
-  /* Notification Banners */
-  .banner-address {
+  /* Notification Boxes */
+  .closed-banner {
+    display: none; background: #fef2f2; border: 2px solid #fecaca; border-radius: 16px;
+    padding: 20px; text-align: center; margin-bottom: 16px; animation: fadeIn 0.4s ease-out;
+  }
+  .address-box {
     background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px;
-    padding: 16px 20px; margin-bottom: 20px;
+    padding: 16px; margin-bottom: 16px;
   }
-  .banner-tag { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 4px; }
-  .banner-text { font-size: 14px; font-weight: 500; color: #1e3a8a; white-space: pre-line; }
+  .address-label { font-size: 12px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .address-content { font-size: 15px; color: #1e40af; font-weight: 600; line-height: 1.6; white-space: pre-line; }
 
-  .banner-closed {
-    background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px;
-    padding: 20px; text-align: center; color: var(--danger); margin-bottom: 20px; display: none;
+  /* Section Card */
+  .section-card {
+    background: #ffffff; border-radius: 16px; padding: 20px;
+    border: 1px solid #e5e7eb; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
   }
+  .section-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .title-cyan { color: #155e75; }
+  .title-amber { color: #92400e; }
+  .section-num {
+    width: 26px; height: 26px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .bg-cyan { background: #06b6d4; }
+  .bg-amber { background: #f59e0b; }
 
-  /* Form Card */
-  .form-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 20px; padding: 24px; margin-bottom: 20px;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-  }
-  .card-title {
-    font-size: 15px; font-weight: 700; color: var(--text-main);
-    display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
-  }
-  .badge-num {
-    width: 24px; height: 24px; border-radius: 8px; background: var(--primary);
-    color: #fff; font-size: 12px; font-weight: 700; display: flex;
-    align-items: center; justify-content: center;
-  }
-
-  /* Input fields */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-group { margin-bottom: 16px; }
+  /* Form controls */
+  .form-group { margin-bottom: 14px; }
   .form-group:last-child { margin-bottom: 0; }
-  label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
-  label .req { color: var(--danger); }
-  
-  input, select, textarea {
-    width: 100%; padding: 11px 14px; font-size: 14px;
-    border: 1.5px solid var(--border); border-radius: 12px; outline: none;
-    transition: 0.2s; background: #fff; color: var(--text-main);
+  .grid-cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .label { display: block; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+  .required { color: #ef4444; }
+  .input-field {
+    width: 100%; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 12px;
+    font-size: 14px; outline: none; background: #fff; color: #111827; transition: 0.15s;
   }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
-  }
-  input.error, select.error, textarea.error {
-    border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  }
-  .err-msg { font-size: 11px; color: var(--danger); margin-top: 4px; display: none; }
-  .mono { font-family: monospace; }
-  textarea { resize: vertical; min-height: 85px; }
+  .input-field:focus { border-color: #0891b2; box-shadow: 0 0 0 3px rgba(8,145,178,0.1); }
+  .input-field.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+  textarea.input-field { resize: vertical; min-height: 80px; }
+  .err-msg { font-size: 11px; color: #ef4444; margin-top: 4px; display: none; }
+  .char-count { font-size: 12px; color: #9ca3af; text-align: right; margin-top: 4px; }
 
-  /* Submit Button */
+  /* Info Note */
+  .info-card {
+    background: #fffbeb; border: 1px solid #fef3c7; border-radius: 14px;
+    padding: 16px; margin-bottom: 16px; display: flex; gap: 10px;
+  }
+  .info-title { font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 4px; }
+  .info-list { font-size: 12px; color: #b45309; padding-left: 18px; line-height: 1.6; }
+
+  /* Buttons */
   .btn-submit {
-    width: 100%; background: var(--primary); color: #fff;
-    font-size: 16px; font-weight: 700; padding: 15px;
-    border: none; border-radius: 14px; cursor: pointer; transition: 0.2s;
-    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+    width: 100%; background: #0891b2; color: #ffffff; padding: 15px;
+    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(8,145,178,0.3);
   }
-  .btn-submit:hover { background: var(--primary-hover); transform: translateY(-1px); }
-  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-submit:hover { background: #0e7490; }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* Success Screen */
-  .success-card {
-    background: #fff; border-radius: 20px; border: 1px solid var(--border);
-    padding: 32px 24px; text-align: center; display: none;
+  /* Success Screen & Card */
+  #successSection { display: none; }
+  .success-box { background: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .receipt-card { padding: 24px; }
+  .receipt-header { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 2px dashed #e5e7eb; }
+  .receipt-row { display: flex; justify-content: space-between; border-bottom: 1px dotted #e5e7eb; padding-bottom: 8px; margin-bottom: 8px; font-size: 14px; }
+  .receipt-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .receipt-group-box { background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .receipt-tag { font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+  
+  .btn-emerald {
+    width: 100%; background: #10b981; color: #fff; padding: 14px; border-radius: 12px;
+    font-size: 14px; font-weight: 700; border: none; cursor: pointer; margin-bottom: 8px;
   }
-  .success-icon { font-size: 48px; margin-bottom: 12px; }
-  .success-steps {
-    background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px;
-    padding: 16px; margin: 20px 0; text-align: left; font-size: 13px; color: #92400e;
+  .btn-blue {
+    width: 100%; background: #2563eb; color: #fff; padding: 14px; border-radius: 12px;
+    font-size: 14px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; display: block; text-align: center; margin-bottom: 8px;
   }
-  .success-steps div { margin-bottom: 6px; }
-  .success-steps div:last-child { margin-bottom: 0; }
+  .btn-gray {
+    width: 100%; background: #fff; color: #6b7280; padding: 10px; border-radius: 12px;
+    font-size: 13px; border: 1px solid #e5e7eb; cursor: pointer;
+  }
 
   /* Overlay */
   .overlay {
     position: fixed; inset: 0; background: rgba(255,255,255,0.85);
-    display: none; align-items: center; justify-content: center;
-    backdrop-filter: blur(4px); z-index: 50; flex-direction: column; gap: 12px;
+    display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); z-index: 50; flex-direction: column; gap: 10px;
   }
   .spinner {
-    width: 44px; height: 44px; border: 4px solid #e2e8f0;
-    border-top-color: var(--primary); border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    width: 44px; height: 44px; border: 4px solid #cffafe; border-top-color: #0891b2;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 540px) {
-    .grid-2 { grid-template-columns: 1fr; }
-    .form-card { padding: 18px; }
-  }
+  .hp-field { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 </style>
 </head>
 <body>
 
-<header class="navbar">
-  <div class="nav-wrap">
-    <div class="brand">
-      <div class="brand-logo">💻</div>
+<header>
+  <div class="header-wrap">
+    <div class="header-brand">
+      <div class="header-icon">🔧</div>
       <div>
-        <div class="brand-title">ซ่อมโน๊ตบุ๊ค เชียงใหม่</div>
-        <div class="brand-desc">แบบฟอร์มส่งซ่อมออนไลน์</div>
+        <div class="header-title">แจ้งซ่อมออนไลน์</div>
+        <div class="header-sub">กรอกข้อมูลเพื่อส่งเครื่องซ่อม</div>
       </div>
     </div>
-    <a href="track.html" class="track-link">🔍 ติดตามงานซ่อม</a>
+    <a href="track.html" class="btn-track-nav">🔍 ติดตามงานซ่อม</a>
   </div>
 </header>
 
-<div class="container" id="formArea">
-
-  <div id="closedBanner" class="banner-closed">
+<div class="container" id="formSection">
+  <div id="closedBanner" class="closed-banner">
     <div style="font-size:32px; margin-bottom:8px;">🚫</div>
-    <div style="font-weight:700; font-size:16px; margin-bottom:4px;">ปิดรับงานซ่อมออนไลน์ชั่วคราว</div>
-    <div style="font-size:13px; color:#b91c1c;">ขณะนี้มีงานซ่อมเต็มอัตรา เพื่อคุณภาพงานซ่อม กรุณาติดต่อในภายหลังครับ</div>
+    <div style="font-weight:700; color:#b91c1c; font-size:17px; margin-bottom:4px;">ปิดรับงานซ่อมออนไลน์ชั่วคราว</div>
+    <div style="font-size:13px; color:#dc2626;">ขณะนี้มีงานซ่อมเข้ามาเป็นจำนวนมาก ทำให้การซ่อมอาจเกิดความล่าช้า<br>กรุณาติดต่อกลับมาในภายหลัง</div>
   </div>
 
-  <div id="shopAddressBox" class="banner-address">
-    <div class="banner-tag">📦 ที่อยู่สำหรับจัดส่งเครื่องมาที่ร้าน</div>
-    <div id="shopAddress" class="banner-text">กำลังโหลดที่อยู่ร้าน...</div>
+  <div id="shopAddressBox" class="address-box">
+    <div class="address-label">📦 ส่งเครื่องมาที่</div>
+    <div id="shopAddress" class="address-content">นายกานต์นิธิ สุกัณทา
+555/99 ม.4 ซ.8 (หมู่บ้านดีญ่า วาเลย์ สารภี)
+ต.หนองผึ้ง อ.สารภี จ.เชียงใหม่ 50140
+Tel. 063-594-2636</div>
   </div>
 
   <div id="openForm">
-    <!-- Card 1: ผู้ส่งซ่อม -->
-    <div class="form-card">
-      <div class="card-title">
-        <span class="badge-num">1</span> ข้อมูลผู้ส่งซ่อม
+    <!-- 1: ข้อมูลผู้ส่งซ่อม -->
+    <div class="section-card">
+      <div class="section-title title-cyan">
+        <span class="section-num bg-cyan">1</span> ข้อมูลผู้ส่งซ่อม
+      </div>
+      <input type="text" id="hp_website" class="hp-field" autocomplete="off" tabindex="-1">
+      <div class="form-group">
+        <label class="label">ชื่อ-นามสกุล <span class="required">*</span></label>
+        <input type="text" id="cName" class="input-field" placeholder="กรอกชื่อ-นามสกุล" maxlength="100">
+        <div class="err-msg" id="errName">กรุณากรอกชื่อ-นามสกุล (ไม่เกิน 100 ตัวอักษร)</div>
       </div>
       <div class="form-group">
-        <label>ชื่อ-นามสกุล <span class="req">*</span></label>
-        <input type="text" id="cName" placeholder="เช่น นายสมชาย ใจดี">
-        <div class="err-msg" id="errName">กรุณากรอกชื่อ-นามสกุล</div>
+        <label class="label">เบอร์โทรศัพท์ <span class="required">*</span></label>
+        <input type="tel" id="cPhone" class="input-field" placeholder="08X-XXX-XXXX" maxlength="15" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <div class="err-msg" id="errPhone">กรุณากรอกเบอร์โทรให้ถูกต้อง (ตัวเลข 9-10 หลัก)</div>
       </div>
       <div class="form-group">
-        <label>เบอร์โทรศัพท์ <span class="req">*</span></label>
-        <input type="tel" id="cPhone" placeholder="08X-XXX-XXXX" maxlength="15" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-        <div class="err-msg" id="errPhone">กรุณากรอกเบอร์โทรศัพท์ 9-10 หลัก</div>
+        <label class="label">ที่อยู่สำหรับจัดส่งคืนเครื่อง <span class="required">*</span></label>
+        <textarea id="cAddress" class="input-field" rows="3" placeholder="บ้านเลขที่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์" maxlength="300"></textarea>
+        <div class="err-msg" id="errAddress">กรุณากรอกที่อยู่สำหรับจัดส่งคืนเครื่อง (อย่างน้อย 10 ตัวอักษร)</div>
       </div>
       <div class="form-group">
-        <label>ที่อยู่สำหรับจัดส่งเครื่องกลับ <span class="req">*</span></label>
-        <textarea id="cAddress" placeholder="บ้านเลขที่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea>
-        <div class="err-msg" id="errAddress">กรุณากรอกที่อยู่อย่างละเอียด (อย่างน้อย 10 ตัวอักษร)</div>
-      </div>
-      <div class="form-group">
-        <label>บริษัทขนส่งที่จะใช้ส่งเครื่องมา <span class="req">*</span></label>
-        <select id="cShipping">
-          <option value="">— เลือกขนส่ง —</option>
+        <label class="label">บริษัทขนส่งที่จะใช้ส่งเครื่องมา <span class="required">*</span></label>
+        <select id="cShipping" class="input-field">
+          <option value="">— เลือกบริษัทขนส่ง —</option>
           <option>Flash Express</option>
           <option>Kerry</option>
-          <option>ไปรษณีย์ไทย (EMS)</option>
+          <option>ไปรษณีย์ไทย</option>
           <option>J&T Express</option>
           <option>DHL</option>
           <option>Ninja Van</option>
           <option>อื่นๆ</option>
         </select>
-        <div class="err-msg" id="errShipping">กรุณาเลือกขนส่งที่ต้องการใช้งาน</div>
+        <div class="err-msg" id="errShipping">กรุณาเลือกบริษัทขนส่ง</div>
       </div>
     </div>
 
-    <!-- Card 2: รายละเอียดเครื่อง -->
-    <div class="form-card">
-      <div class="card-title">
-        <span class="badge-num" style="background:#0284c7;">2</span> ข้อมูลเครื่องที่ต้องการซ่อม
+    <!-- 2: ข้อมูลเครื่อง -->
+    <div class="section-card">
+      <div class="section-title title-amber">
+        <span class="section-num bg-amber">2</span> ข้อมูลเครื่องที่ต้องการซ่อม
       </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>ยี่ห้อ</label>
-          <select id="cBrand">
-            <option value="">— เลือกยี่ห้อ —</option>
+      <div class="grid-cols-2 form-group">
+        <div>
+          <label class="label">ยี่ห้อ</label>
+          <select id="cBrand" class="input-field">
+            <option value="">— เลือก —</option>
             <option>ASUS</option><option>Acer</option><option>HP</option><option>Dell</option>
             <option>Lenovo</option><option>Apple</option><option>MSI</option>
             <option>Toshiba</option><option>Samsung</option><option>อื่นๆ</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>รุ่น (Model)</label>
-          <input type="text" id="cModel" placeholder="เช่น Vivobook 15">
+        <div>
+          <label class="label">รุ่น (Model)</label>
+          <input type="text" id="cModel" class="input-field" placeholder="(ไม่ต้องกรอกก็ได้)" maxlength="100">
         </div>
       </div>
       <div class="form-group">
-        <label>Serial Number (S/N)</label>
-        <input type="text" id="cSN" class="mono" placeholder="ดูจากสติกเกอร์ใต้เครื่อง (ไม่บังคับ)">
+        <label class="label">Serial Number (S/N)</label>
+        <input type="text" id="cSN" class="input-field" placeholder="หาได้ที่สติกเกอร์ด้านใต้เครื่อง (ไม่ต้องกรอกก็ได้)" maxlength="100" style="font-family:monospace">
       </div>
       <div class="form-group">
-        <label>อาการเสียที่แจ้ง <span class="req">*</span></label>
-        <textarea id="cSymptom" placeholder="อธิบายอาการเสีย เช่น เปิดไม่ติด, จอมืด, ร้อนดับ..."></textarea>
-        <div class="err-msg" id="errSymptom">กรุณาระบุอาการเสียอย่างน้อย 10 ตัวอักษร</div>
+        <label class="label">อาการเสียที่ต้องการแจ้ง <span class="required">*</span></label>
+        <textarea id="cSymptom" class="input-field" placeholder="อธิบายอาการเสียให้ละเอียด เช่น จอไม่ติด เปิดไม่ขึ้น ร้อนมาก แบตไม่ชาร์จ..." maxlength="500"></textarea>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="err-msg" id="errSymptom">กรุณาอธิบายอาการเสียอย่างน้อย 10 ตัวอักษร</div>
+          <div class="char-count" style="margin-left:auto;"><span id="charCount">0</span>/500</div>
+        </div>
       </div>
     </div>
 
-    <button type="button" class="btn-submit" id="submitBtn" onclick="submitForm()">📤 ยืนยันการส่งคำขอซ่อม</button>
-  </div>
-
-</div>
-
-<!-- Success Card -->
-<div class="container" id="successArea" style="display:none;">
-  <div class="success-card" style="display:block;">
-    <div class="success-icon">✅</div>
-    <h2 style="font-size:20px; font-weight:700; margin-bottom:4px;">ส่งข้อมูลสำเร็จแล้ว!</h2>
-    <p style="font-size:13px; color:var(--text-sub);">ระบบได้รับคำขอของท่านเรียบร้อย ช่างจะติดต่อกลับโดยเร็ว</p>
-
-    <div class="success-steps">
-      <div><strong>📌 ขั้นตอนถัดไป:</strong></div>
-      <div>1. แพ็คเครื่องลงกล่องกันกระแทกให้มิดชิด</div>
-      <div>2. ส่งเครื่องมาตามที่อยู่ร้านที่แสดงด้านบน</div>
-      <div>3. เมื่อเครื่องถึงร้าน ช่างจะเปิดใบงานและเริ่มกระบวนการตรวจเช็คทันที</div>
+    <!-- Info Box -->
+    <div class="info-card">
+      <div style="font-size:20px;">⚠️</div>
+      <div>
+        <div class="info-title">ข้อมูลสำคัญก่อนส่ง</div>
+        <ul class="info-list">
+          <li>กรุณาสำรองข้อมูลในเครื่องก่อนส่งซ่อม</li>
+          <li>แพ็คเครื่องให้มิดชิด ป้องกันการกระแทก</li>
+          <li>ทีมงานจะติดต่อกลับเพื่อแจ้งราคาก่อนซ่อมทุกครั้ง</li>
+          <li>ค่าใช้จ่ายในการประเมินอาการ ฟรี!</li>
+        </ul>
+      </div>
     </div>
 
-    <a href="track.html" class="btn-submit" style="display:inline-block; text-decoration:none; margin-bottom:12px;">🔍 ไปยังหน้าติดตามสถานะซ่อม</a>
-    <br>
-    <button onclick="location.reload()" style="background:none; border:none; color:var(--text-sub); font-size:13px; cursor:pointer; text-decoration:underline;">ส่งคำขอซ่อมเครื่องอื่นเพิ่มเติม</button>
+    <button type="button" id="submitBtn" class="btn-submit" onclick="submitForm()">📤 ส่งคำขอซ่อม</button>
+    <p style="text-align:center; font-size:12px; color:#9ca3af; margin-top:12px;">ทีมงานได้รับคำขอของคุณแล้วจะรับเข้าระบบทันที</p>
   </div>
 </div>
 
-<!-- Loading Overlay -->
+<!-- Success Screen (โครงสร้างเดิมที่ถ่ายรูปได้) -->
+<div class="container" id="successSection">
+  <div class="success-box">
+    <div id="receiptCard" class="receipt-card">
+      <div class="receipt-header">
+        <div class="header-icon" style="width:48px; height:48px; font-size:24px;">🔧</div>
+        <div>
+          <div style="font-weight:700; color:#0e7490; font-size:16px;">ซ่อมโน๊ตบุ๊ค เชียงใหม่</div>
+          <div style="font-size:12px; color:#9ca3af;">📞 063-594-2636</div>
+        </div>
+        <div style="margin-left:auto; text-align:right;">
+          <div style="font-size:12px; color:#9ca3af;">วันที่แจ้ง</div>
+          <div id="sDate" style="font-size:13px; font-weight:700; color:#374151;">-</div>
+          <div id="sTime" style="font-size:11px; color:#9ca3af;">-</div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-bottom:16px;">
+        <div style="font-size:40px; margin-bottom:4px;">✅</div>
+        <div style="font-weight:700; font-size:18px; color:#1f2937;">ส่งคำขอซ่อมสำเร็จ!</div>
+        <div style="font-size:12px; color:#9ca3af; margin-top:2px;">ทีมงานจะติดต่อกลับทางเบอร์โทรที่ให้ไว้</div>
+      </div>
+
+      <div style="background:#fffbeb; border:1px solid #fef3c7; border-radius:12px; padding:12px; margin-bottom:14px; font-size:12px; color:#b45309;">
+        <div style="font-weight:700; margin-bottom:4px;">📌 ขั้นตอนถัดไป</div>
+        <div style="line-height:1.6;">
+          1️⃣ แพ็คเครื่องให้มิดชิดแล้ว<strong>ส่งเครื่องมาที่ร้าน</strong>ตามที่อยู่ด้านบน<br>
+          2️⃣ เมื่อร้าน<strong>ได้รับเครื่องแล้ว</strong> จะรับเข้าระบบ<br>
+          3️⃣ หลังรับเข้าระบบแล้ว คุณจะสามารถ <strong>"ใช้เบอร์โทรศัพท์ ของคุณ"</strong> เพื่อติดตามสถานะการซ่อมได้
+        </div>
+      </div>
+
+      <div class="receipt-group-box">
+        <div class="receipt-tag" style="color:#0891b2;">👤 ข้อมูลผู้แจ้ง</div>
+        <div class="receipt-row"><span style="color:#9ca3af;">ชื่อ</span><span style="font-weight:600;" id="sName">-</span></div>
+        <div class="receipt-row"><span style="color:#9ca3af;">เบอร์โทร</span><span style="font-weight:600;" id="sPhone">-</span></div>
+        <div class="receipt-row"><span style="color:#9ca3af;">ขนส่ง</span><span style="font-weight:600;" id="sShipping">-</span></div>
+
+        <div class="receipt-tag" style="color:#d97706; margin-top:12px;">💻 ข้อมูลเครื่อง</div>
+        <div class="receipt-row"><span style="color:#9ca3af;">ยี่ห้อ / รุ่น</span><span style="font-weight:600;" id="sBrand">-</span></div>
+        <div class="receipt-row"><span style="color:#9ca3af;">อาการ</span><span style="font-weight:600; text-align:right;" id="sSymptom">-</span></div>
+      </div>
+
+      <div style="text-align:center; font-size:12px; color:#9ca3af; border-top:1px dashed #e5e7eb; pt:12px; padding-top:10px;">
+        📌 กรุณาบันทึกรูปนี้ไว้เพื่อเป็นหลักฐาน
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div id="receiptActions" style="padding:0 24px 24px;">
+      <button type="button" class="btn-emerald" onclick="saveAsImage()">📸 บันทึกรูปหลักฐาน</button>
+      <a href="track.html" class="btn-blue">🔍 ติดตามสถานะงานซ่อม</a>
+      <button type="button" class="btn-gray" onclick="location.reload()">ส่งคำขออีกครั้ง</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="loadingOverlay">
   <div class="spinner"></div>
-  <div style="font-size:14px; font-weight:600; color:var(--text-main);">กำลังบันทึกข้อมูล...</div>
+  <div style="font-size:14px; font-weight:600; color:#374151;" id="loadingText">กำลังส่งคำขอ...</div>
 </div>
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbysbzklPFBvkF3mL4MSBHS5_g7McNjKwbxhtp7UFH_1uJ3c_lIZGSXYk8M2fmR5v7UN/exec';
 
-async function init() {
+async function initForm() {
   try {
     const res = await fetch(`${API_URL}?action=getShopStatus`);
     const data = await res.json();
-    document.getElementById('shopAddress').textContent = data.address || '555/99 ม.4 ซ.8 ต.หนองผึ้ง อ.สารภี จ.เชียงใหม่ 50140 (โทร 063-594-2636)';
+    if (data.address) document.getElementById('shopAddress').textContent = data.address;
     if (!data.isOpen) {
       document.getElementById('closedBanner').style.display = 'block';
       document.getElementById('openForm').style.display = 'none';
+      document.getElementById('shopAddressBox').style.display = 'none';
     }
-  } catch (e) {
-    document.getElementById('shopAddress').textContent = '555/99 ม.4 ซ.8 ต.หนองผึ้ง อ.สารภี จ.เชียงใหม่ 50140 (โทร 063-594-2636)';
-  }
+  } catch(e) {}
+
+  document.getElementById('cSymptom').addEventListener('input', function(){
+    document.getElementById('charCount').textContent = this.value.length;
+  });
 }
 
-function validate(name, phone, address, shipping, symptom) {
-  let ok = true;
+function validateForm(name, phone, address, shipping, symptom) {
+  let valid = true;
   ['cName','cPhone','cAddress','cShipping','cSymptom'].forEach(id => {
     document.getElementById(id).classList.remove('error');
   });
@@ -296,43 +348,44 @@ function validate(name, phone, address, shipping, symptom) {
   if (!name || name.length < 2) {
     document.getElementById('cName').classList.add('error');
     document.getElementById('errName').style.display = 'block';
-    ok = false;
+    valid = false;
   }
-  const cleanPhone = phone.replace(/[-\s]/g, '');
-  if (!cleanPhone || cleanPhone.length < 9) {
+  const phoneClean = phone.replace(/[-\s]/g, '');
+  if (!/^[0-9]{9,10}$/.test(phoneClean)) {
     document.getElementById('cPhone').classList.add('error');
     document.getElementById('errPhone').style.display = 'block';
-    ok = false;
+    valid = false;
   }
   if (!address || address.trim().length < 10) {
     document.getElementById('cAddress').classList.add('error');
     document.getElementById('errAddress').style.display = 'block';
-    ok = false;
+    valid = false;
   }
   if (!shipping) {
     document.getElementById('cShipping').classList.add('error');
     document.getElementById('errShipping').style.display = 'block';
-    ok = false;
+    valid = false;
   }
   if (!symptom || symptom.trim().length < 10) {
     document.getElementById('cSymptom').classList.add('error');
     document.getElementById('errSymptom').style.display = 'block';
-    ok = false;
+    valid = false;
   }
-  return ok;
+  return valid;
 }
 
 async function submitForm() {
-  const name = document.getElementById('cName').value.trim();
-  const phone = document.getElementById('cPhone').value.trim();
-  const address = document.getElementById('cAddress').value.trim();
+  const name     = document.getElementById('cName').value.trim();
+  const phone    = document.getElementById('cPhone').value.trim();
+  const address  = document.getElementById('cAddress').value.trim();
   const shipping = document.getElementById('cShipping').value;
-  const symptom = document.getElementById('cSymptom').value.trim();
-  const brand = document.getElementById('cBrand').value;
-  const model = document.getElementById('cModel').value.trim();
-  const sn = document.getElementById('cSN').value.trim();
+  const symptom  = document.getElementById('cSymptom').value.trim();
+  const brand    = document.getElementById('cBrand').value;
+  const model    = document.getElementById('cModel').value.trim();
+  const sn       = document.getElementById('cSN').value.trim();
 
-  if (!validate(name, phone, address, shipping, symptom)) return;
+  if (document.getElementById('hp_website').value !== '') return;
+  if (!validateForm(name, phone, address, shipping, symptom)) return;
 
   const payload = {
     action: 'submitRequest',
@@ -354,12 +407,21 @@ async function submitForm() {
     overlay.style.display = 'none';
 
     if (result.ok) {
-      document.getElementById('formArea').style.display = 'none';
-      document.getElementById('successArea').style.display = 'block';
+      const now = new Date();
+      document.getElementById('sDate').textContent = now.toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' });
+      document.getElementById('sTime').textContent = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' }) + ' น.';
+      document.getElementById('sName').textContent = name;
+      document.getElementById('sPhone').textContent = phone;
+      document.getElementById('sShipping').textContent = shipping;
+      document.getElementById('sBrand').textContent = [brand, model].filter(Boolean).join(' ') || '-';
+      document.getElementById('sSymptom').textContent = symptom;
+
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('successSection').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       btn.disabled = false;
-      alert(result.msg || 'ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
+      alert(result.msg || 'เกิดข้อผิดพลาดในการส่งคำขอ');
     }
   } catch (err) {
     overlay.style.display = 'none';
@@ -368,7 +430,31 @@ async function submitForm() {
   }
 }
 
-init();
+function saveAsImage() {
+  const card = document.getElementById('receiptCard');
+  const actions = document.getElementById('receiptActions');
+  const overlay = document.getElementById('loadingOverlay');
+  document.getElementById('loadingText').textContent = 'กำลังสร้างรูปภาพ...';
+  actions.style.display = 'none';
+  overlay.style.display = 'flex';
+
+  html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false }).then(canvas => {
+    overlay.style.display = 'none';
+    actions.style.display = 'block';
+    const now = new Date();
+    const name = `แจ้งซ่อม_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.png`;
+    const link = document.createElement('a');
+    link.download = name;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(() => {
+    overlay.style.display = 'none';
+    actions.style.display = 'block';
+    alert('ไม่สามารถบันทึกรูปได้ กรุณากดค้างที่หน้าจอแล้วบันทึกรูปภาพแทนครับ');
+  });
+}
+
+initForm();
 </script>
 </body>
 </html>
