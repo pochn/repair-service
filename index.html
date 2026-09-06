@@ -135,6 +135,11 @@
 </head>
 <body>
 
+<iframe name="gasHiddenFrame" id="gasHiddenFrame" style="display:none;"></iframe>
+<form id="gasSubmitForm" method="POST" action="https://script.google.com/macros/s/AKfycbysbzklPFBvkF3mL4MSBHS5_g7McNjKwbxhtp7UFH_1uJ3c_lIZGSXYk8M2fmR5v7UN/exec" target="gasHiddenFrame" style="display:none;">
+  <input type="hidden" name="payload" id="gasPayload">
+</form>
+
 <header>
   <div class="header-wrap">
     <div class="header-brand">
@@ -397,37 +402,22 @@ async function submitForm() {
   overlay.style.display = 'flex';
   btn.disabled = true;
 
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    overlay.style.display = 'none';
+  document.getElementById('gasPayload').value = JSON.stringify(payload);
+  document.getElementById('gasSubmitForm').submit();
 
-    if (result.ok) {
-      const now = new Date();
-      document.getElementById('sDate').textContent = now.toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' });
-      document.getElementById('sTime').textContent = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' }) + ' น.';
-      document.getElementById('sName').textContent = name;
-      document.getElementById('sPhone').textContent = phone;
-      document.getElementById('sShipping').textContent = shipping;
-      document.getElementById('sBrand').textContent = [brand, model].filter(Boolean).join(' ') || '-';
-      document.getElementById('sSymptom').textContent = symptom;
+  const now = new Date();
+  document.getElementById('sDate').textContent = now.toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('sTime').textContent = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' }) + ' น.';
+  document.getElementById('sName').textContent = name;
+  document.getElementById('sPhone').textContent = phone;
+  document.getElementById('sShipping').textContent = shipping;
+  document.getElementById('sBrand').textContent = [brand, model].filter(Boolean).join(' ') || '-';
+  document.getElementById('sSymptom').textContent = symptom;
 
-      document.getElementById('formSection').style.display = 'none';
-      document.getElementById('successSection').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      btn.disabled = false;
-      alert(result.msg || 'เกิดข้อผิดพลาดในการส่งคำขอ');
-    }
-  } catch (err) {
-    overlay.style.display = 'none';
-    btn.disabled = false;
-    alert('เชื่อมต่อระบบล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ต');
-  }
+  overlay.style.display = 'none';
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('successSection').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function saveAsImage() {

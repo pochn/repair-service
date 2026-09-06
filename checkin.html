@@ -48,6 +48,11 @@
 </style>
 </head>
 <body>
+<iframe name="gasHiddenFrame" id="gasHiddenFrame" style="display:none;"></iframe>
+<form id="gasSubmitForm" method="POST" action="https://script.google.com/macros/s/AKfycbysbzklPFBvkF3mL4MSBHS5_g7McNjKwbxhtp7UFH_1uJ3c_lIZGSXYk8M2fmR5v7UN/exec" target="gasHiddenFrame" style="display:none;">
+  <input type="hidden" name="payload" id="gasPayload">
+</form>
+
 <header>
   <div class="header-wrap">
     <div class="header-brand">
@@ -168,22 +173,11 @@ async function submitCheckin(event) {
   };
 
   setSubmitting(true);
-  try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload),
-      redirect: 'follow'
-    });
-    const data = await response.json();
-    if (data.ok === false) throw new Error(data.msg || 'ไม่สามารถบันทึกข้อมูลได้');
-    document.getElementById('formCard').style.display = 'none';
-    document.getElementById('successCard').style.display = 'block';
-  } catch (error) {
-    alert('ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง');
-  } finally {
-    setSubmitting(false);
-  }
+  document.getElementById('gasPayload').value = JSON.stringify(payload);
+  document.getElementById('gasSubmitForm').submit();
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('successCard').style.display = 'block';
+  setSubmitting(false);
 }
 
 function resetForm() {
