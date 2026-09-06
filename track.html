@@ -3,15 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ติดตามงานซ่อม</title>
-<script src="[https://cdn.tailwindcss.com/3.4.17](https://cdn.tailwindcss.com/3.4.17)"></script>
-<link href="[https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
+<title>ติดตามงานซ่อม — ซ่อมโน๊ตบุ๊ค เชียงใหม่</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *{font-family:'Sarabun',sans-serif}
-  .fade-in{animation:fadeIn .35s ease-out}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-  .shake{animation:shake .4s ease-out}
-  @keyframes shake{
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; }
+  body { background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%); min-height: 100vh; color: #111827; padding-bottom: 40px; }
+
+  /* Header */
+  header {
+    background: #ffffff; border-bottom: 1px solid #e5e7eb;
+    position: sticky; top: 0; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .header-wrap {
+    max-width: 540px; margin: 0 auto; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .header-brand { display: flex; align-items: center; gap: 12px; }
+  .header-icon {
+    width: 40px; height: 40px; background: #2563eb; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; flex-shrink: 0;
+  }
+  .header-title { font-weight: 700; color: #1d4ed8; font-size: 16px; line-height: 1.2; }
+  .header-sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .btn-form-nav {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+    color: #0891b2; background: #ecfeff; border: 1px solid #a5f3fc;
+    padding: 8px 12px; border-radius: 12px; text-decoration: none; flex-shrink: 0; transition: 0.15s;
+  }
+  .btn-form-nav:hover { background: #cffafe; }
+
+  /* Container */
+  .container { max-width: 540px; margin: 24px auto 0; padding: 0 16px; }
+
+  /* Search Card */
+  .search-card {
+    background: #ffffff; border-radius: 20px; border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); padding: 24px; margin-bottom: 20px;
+  }
+  .search-header { text-align: center; margin-bottom: 20px; }
+  .search-icon { font-size: 36px; margin-bottom: 8px; }
+  .search-title { font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+  .search-desc { font-size: 13px; color: #9ca3af; line-height: 1.5; }
+
+  /* Input & Button */
+  .search-box { display: flex; flex-direction: column; gap: 12px; }
+  .input-search {
+    width: 100%; padding: 12px 16px; border: 1.5px solid #e5e7eb; border-radius: 14px;
+    font-size: 15px; outline: none; text-align: center; color: #111827; transition: 0.2s;
+  }
+  .input-search:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  }
+  .btn-search {
+    width: 100%; background: #2563eb; color: #ffffff; padding: 13px;
+    border: none; border-radius: 14px; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.25);
+  }
+  .btn-search:hover { background: #1d4ed8; }
+  .btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Rate Limit Box */
+  .rate-limit-box {
+    display: none; text-align: center; font-size: 12px; color: #c2410c;
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 8px 12px;
+  }
+
+  /* History Box */
+  .history-box { display: none; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .history-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px;
+    padding: 8px 12px; cursor: pointer; transition: 0.15s; font-size: 13px;
+  }
+  .history-item:hover { background: #eff6ff; border-color: #dbeafe; }
+
+  /* Result Area & Card */
+  .result-card {
+    background: #ffffff; border: 2px solid #e5e7eb; border-radius: 20px;
+    padding: 20px; margin-bottom: 16px; animation: fadeIn 0.35s ease-out;
+  }
+  .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .job-id { font-size: 20px; font-weight: 700; color: #1f2937; font-family: monospace; }
+  .badge {
+    padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .badge-wait { background: #fef3c7; color: #b45309; }
+  .badge-progress { background: #dbeafe; color: #1e40af; }
+  .badge-done { background: #d1fae5; color: #065f46; }
+  .badge-cancel { background: #fee2e2; color: #991b1b; }
+  .badge-orange { background: #ffedd5; color: #c2410c; }
+
+  /* Progress Stepper */
+  .stepper-wrap {
+    background: #f9fafb; border-radius: 16px; padding: 16px 12px; margin-bottom: 16px;
+  }
+  .stepper { position: relative; display: flex; justify-content: space-between; padding: 0 4px; }
+  .stepper-bar-bg {
+    position: absolute; top: 14px; left: 12%; right: 12%; height: 4px;
+    background: #e5e7eb; z-index: 1; border-radius: 4px;
+  }
+  .stepper-bar-fill { height: 100%; background: #22d3ee; border-radius: 4px; transition: 0.3s; }
+  .step-node {
+    position: relative; z-index: 2; display: flex; flex-direction: column;
+    align-items: center; gap: 6px; width: 25%;
+  }
+  .step-circle {
+    width: 32px; height: 32px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+    border: 2px solid #e5e7eb; background: #ffffff; color: #9ca3af;
+  }
+  .step-circle.done { background: #06b6d4; border-color: #06b6d4; color: #ffffff; }
+  .step-circle.active { background: #ffffff; border-color: #06b6d4; color: #0891b2; box-shadow: 0 0 0 3px rgba(6,182,212,0.2); }
+  .step-label { font-size: 11px; color: #9ca3af; font-weight: 500; text-align: center; }
+  .step-label.active { color: #0369a1; font-weight: 700; }
+  .step-label.done { color: #0891b2; }
+
+  .status-pill {
+    background: #eff6ff; border-radius: 12px; padding: 8px 12px; text-align: center;
+    font-size: 13px; font-weight: 700; color: #1d4ed8; margin-top: 12px;
+  }
+
+  /* Details Grid */
+  .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+  .detail-box { background: #f9fafb; border-radius: 12px; padding: 10px 14px; }
+  .detail-box.full { grid-column: 1 / -1; background: #eff6ff; }
+  .detail-lbl { font-size: 11px; color: #6b7280; margin-bottom: 2px; }
+  .detail-val { font-weight: 600; color: #1f2937; }
+
+  /* Error & Empty State */
+  .error-card {
+    background: #ffffff; border: 1px solid #fee2e2; border-radius: 20px;
+    padding: 24px; text-align: center; animation: fadeIn 0.35s ease-out;
+  }
+
+  /* Loading State */
+  .loading-area { display: none; text-align: center; padding: 24px; }
+  .spinner {
+    width: 38px; height: 38px; border: 3px solid #bfdbfe; border-top-color: #2563eb;
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  
+  /* Shake animation */
+  .shake { animation: shake 0.4s ease-out; }
+  @keyframes shake {
     0%,100%{transform:translateX(0)}
     15%{transform:translateX(-6px)}
     30%{transform:translateX(6px)}
@@ -22,56 +159,64 @@
   }
 </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
+<body>
 
-<header class="bg-white border-b border-gray-200 shadow-sm">
-  <div class="max-w-lg mx-auto px-4 py-4 flex items-center gap-3">
-    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl">🔧</div>
-    <div>
-      <div class="font-bold text-blue-700 text-base leading-none">ติดตามงานซ่อม</div>
-      <div class="text-xs text-gray-400 mt-0.5">Track Repair Status</div>
+<header>
+  <div class="header-wrap">
+    <div class="header-brand">
+      <div class="header-icon">🔧</div>
+      <div>
+        <div class="header-title">ติดตามงานซ่อม</div>
+        <div class="header-sub">Track Repair Status</div>
+      </div>
     </div>
+    <a href="index.html" class="btn-form-nav">📝 แจ้งซ่อมออนไลน์</a>
   </div>
 </header>
 
-<div class="max-w-lg mx-auto px-4 py-8">
-  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-5">
-    <div class="text-center mb-5">
-      <div class="text-4xl mb-2">🔍</div>
-      <div class="font-bold text-gray-800 text-lg">ค้นหาสถานะการซ่อม</div>
-      <div class="text-sm text-gray-400 mt-1">กรอก <strong class="text-gray-600">เบอร์โทร 10 หลัก</strong> หรือ <strong class="text-gray-600">รหัสงาน บนใบรับซ่อม</strong></div>
+<div class="container">
+  <div class="search-card">
+    <div class="search-header">
+      <div class="search-icon">🔍</div>
+      <div class="search-title">ค้นหาสถานะการซ่อม</div>
+      <div class="search-desc">
+        กรอก <strong>เบอร์โทร 10 หลัก</strong> ไม่มีขีด ไม่เว้นวรรค<br>
+        หรือ <strong>รหัสงาน บนใบรับซ่อม</strong> (เช่น Job1)
+      </div>
     </div>
-    <div class="space-y-3" id="searchBox">
+
+    <div class="search-box" id="searchBox">
       <input id="searchInput" type="text" maxlength="15"
-        placeholder="เช่น 0812345678 หรือ Job1"
-        class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-center text-base"
+        placeholder="เช่น 0812345678 หรือ Job1" class="input-search"
         onkeypress="if(event.key==='Enter')doSearch()" oninput="filterHistory(this.value)">
-      <div id="historyBox" class="hidden space-y-1"></div>
-      <button onclick="doSearch()" id="searchBtn"
-        class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-xl font-bold text-sm transition-colors">
-        🔍 ค้นหา
+
+      <div id="historyBox" class="history-box"></div>
+
+      <button onclick="doSearch()" id="searchBtn" class="btn-search">
+        🔍 ค้นหาข้อมูล
       </button>
-      <div id="rateLimitBox" class="hidden text-center text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded-xl py-2 px-3">
-        ⏳ กรุณารอ <span id="countdownSec" class="font-bold">5</span> วินาที ก่อนค้นหาอีกครั้ง
+
+      <div id="rateLimitBox" class="rate-limit-box">
+        ⏳ กรุณารอ <span id="countdownSec" style="font-weight:700;">5</span> วินาที ก่อนค้นหาอีกครั้ง
       </div>
     </div>
   </div>
 
-  <div id="resultArea"></div>
-
-  <div id="loadingArea" class="hidden text-center py-8">
-    <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
-    <div class="text-sm text-gray-400">กำลังค้นหา...</div>
+  <div id="loadingArea" class="loading-area">
+    <div class="spinner"></div>
+    <div style="font-size:13px; color:#6b7280;">กำลังดึงข้อมูลสถานะงานซ่อม...</div>
   </div>
 
-  <div class="text-center mt-8 text-xs text-gray-400 space-y-1">
-    <div>มีปัญหาหรือต้องการสอบถาม</div>
-    <div class="font-medium text-gray-500">📞 063-594-2636</div>
+  <div id="resultArea"></div>
+
+  <div style="text-align:center; margin-top:24px; font-size:12px; color:#9ca3af; line-height:1.6;">
+    <div>มีปัญหาหรือต้องการสอบถามเพิ่มเติม</div>
+    <div style="font-weight:600; color:#4b5563;">📞 063-594-2636</div>
   </div>
 </div>
 
 <script>
-const API_URL = '[https://script.google.com/macros/s/AKfycbysbzklPFBvkF3mL4MSBHS5_g7McNjKwbxhtp7UFH_1uJ3c_lIZGSXYk8M2fmR5v7UN/exec](https://script.google.com/macros/s/AKfycbysbzklPFBvkF3mL4MSBHS5_g7McNjKwbxhtp7UFH_1uJ3c_lIZGSXYk8M2fmR5v7UN/exec)';
+const API_URL = 'https://script.google.com/macros/s/AKfycbysbzklPFBvkF3mL4MSBHS5_g7McNjKwbxhtp7UFH_1uJ3c_lIZGSXYk8M2fmR5v7UN/exec';
 const RATE_LIMIT_MS = 5 * 1000;
 const RL_KEY = 'track_last_search';
 const HISTORY_KEY = 'track_search_history';
@@ -79,20 +224,21 @@ const MAX_HISTORY = 5;
 let countdownTimer = null;
 
 const STATUS_CONFIG = {
-  'รอซ่อม':                 {icon:'⏳',label:'รอซ่อม',               badge:'bg-amber-100 text-amber-700',  step:1},
-  'อยู่ระหว่างซ่อม':         {icon:'🔧',label:'กำลังซ่อม',            badge:'bg-blue-100 text-blue-700',    step:2},
-  'ซ่อมเสร็จ':               {icon:'✅',label:'ซ่อมเสร็จแล้ว',        badge:'bg-emerald-100 text-emerald-700',step:3},
-  'ซ่อมเสร็จ ส่งคืนลูกค้า':  {icon:'📦',label:'ส่งคืนลูกค้าแล้ว',     badge:'bg-emerald-100 text-emerald-700',step:4},
-  'ยกเลิกซ่อม':             {icon:'❌',label:'ยกเลิกการซ่อม',        badge:'bg-red-100 text-red-700',      step:0},
-  'ยกเลิกซ่อมส่งคืนลูกค้า': {icon:'📤',label:'ยกเลิกซ่อม ส่งคืนแล้ว', badge:'bg-orange-100 text-orange-700', step:0},
-  'ยกเลิกซ่อม ส่งกลับแล้ว': {icon:'📤',label:'ยกเลิกซ่อม ส่งคืนแล้ว', badge:'bg-orange-100 text-orange-700', step:0},
+  'รอซ่อม':                 {icon:'⏳', label:'รอซ่อม',               badge:'badge-wait',     step:1},
+  'อยู่ระหว่างซ่อม':         {icon:'🔧', label:'กำลังซ่อม',            badge:'badge-progress', step:2},
+  'ซ่อมเสร็จ':               {icon:'✅', label:'ซ่อมเสร็จแล้ว',        badge:'badge-done',     step:3},
+  'ซ่อมเสร็จ ส่งคืนลูกค้า':  {icon:'📦', label:'ส่งคืนลูกค้าแล้ว',     badge:'badge-done',     step:4},
+  'ยกเลิกซ่อม':             {icon:'❌', label:'ยกเลิกการซ่อม',        badge:'badge-cancel',   step:0},
+  'ยกเลิกซ่อมส่งคืนลูกค้า': {icon:'📤', label:'ยกเลิกซ่อม ส่งคืนแล้ว', badge:'badge-orange',   step:0},
+  'ยกเลิกซ่อม ส่งกลับแล้ว': {icon:'📤', label:'ยกเลิกซ่อม ส่งคืนแล้ว', badge:'badge-orange',   step:0},
+  'ยกเลิกซ่อม ส่งคืนแล้ว': {icon:'📤', label:'ยกเลิกซ่อม ส่งคืนแล้ว', badge:'badge-orange',   step:0},
 };
 
 const STEPS = [
   {label:'รับเครื่อง', icon:'📥'},
   {label:'กำลังซ่อม', icon:'🔧'},
   {label:'ซ่อมเสร็จ', icon:'✅'},
-  {label:'ส่งคืนแล้ว',icon:'📦'},
+  {label:'ส่งคืนแล้ว', icon:'📦'},
 ];
 
 function shake(){
@@ -118,9 +264,8 @@ function startCountdown(seconds){
   const input = document.getElementById('searchInput');
   const box = document.getElementById('rateLimitBox');
   const secEl = document.getElementById('countdownSec');
-  btn.disabled = true;
-  input.disabled = true;
-  box.classList.remove('hidden');
+  btn.disabled = true; input.disabled = true;
+  box.style.display = 'block';
   secEl.textContent = seconds;
   clearInterval(countdownTimer);
   countdownTimer = setInterval(()=>{
@@ -128,9 +273,8 @@ function startCountdown(seconds){
     secEl.textContent = seconds;
     if(seconds <= 0){
       clearInterval(countdownTimer);
-      btn.disabled = false;
-      input.disabled = false;
-      box.classList.add('hidden');
+      btn.disabled = false; input.disabled = false;
+      box.style.display = 'none';
     }
   }, 1000);
 }
@@ -138,10 +282,9 @@ function startCountdown(seconds){
 function setLoading(isLoading){
   const btn = document.getElementById('searchBtn');
   const input = document.getElementById('searchInput');
-  btn.disabled = isLoading;
-  input.disabled = isLoading;
-  document.getElementById('loadingArea').classList.toggle('hidden', !isLoading);
-  btn.textContent = isLoading ? '⏳ กำลังค้นหา...' : '🔍 ค้นหา';
+  btn.disabled = isLoading; input.disabled = isLoading;
+  document.getElementById('loadingArea').style.display = isLoading ? 'block' : 'none';
+  btn.textContent = isLoading ? '⏳ กำลังค้นหา...' : '🔍 ค้นหาข้อมูล';
 }
 
 async function doSearch(){
@@ -173,89 +316,96 @@ async function doSearch(){
     saveHistory(q);
 
     if(!data.ok){
-      showError(data.msg);
+      showError(data.msg || 'ไม่พบข้อมูลงานซ่อม');
       return;
     }
     showResults(data.results);
   } catch (err) {
     setLoading(false);
-    showError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง');
+    showError('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
   }
 }
 
 function showResults(results){
   document.getElementById('resultArea').innerHTML = results.map(r=>{
-    const cfg = STATUS_CONFIG[r.status] || {icon:'❓',label:r.status,badge:'bg-gray-100 text-gray-600',step:-1};
+    const cfg = STATUS_CONFIG[r.status] || {icon:'❓', label:r.status, badge:'badge-wait', step:-1};
     const step = cfg.step;
-    const cancelled = r.status.includes('ยกเลิก');
+    const isCancelled = r.status.includes('ยกเลิก');
 
-    const stepsHtml = cancelled
-      ? `<div class="flex items-center justify-center gap-2 py-2 ${r.status.includes('ส่ง')?'bg-orange-50':'bg-red-50'} rounded-xl">
-          <span class="text-xl">${r.status.includes('ส่ง')?'📤':'❌'}</span>
-          <span class="text-sm font-semibold ${r.status.includes('ส่ง')?'text-orange-600':'text-red-600'}">
-            ${r.status.includes('ส่ง')?'ยกเลิกซ่อม — ส่งคืนเครื่องแล้ว':'ยกเลิกการซ่อม — กรุณาติดต่อร้านเพื่อรับเครื่องคืน'}
+    let stepsHtml = '';
+    if(isCancelled){
+      const isReturned = r.status.includes('ส่ง');
+      stepsHtml = `
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; background:${isReturned?'#fff7ed':'#fef2f2'}; border-radius:12px;">
+          <span style="font-size:20px;">${isReturned?'📤':'❌'}</span>
+          <span style="font-size:13px; font-weight:700; color:${isReturned?'#c2410c':'#dc2626'};">
+            ${isReturned ? 'ยกเลิกซ่อม — ส่งคืนเครื่องเรียบร้อยแล้ว' : 'ยกเลิกการซ่อม — กรุณาติดต่อร้านเพื่อรับเครื่องคืน'}
           </span>
-        </div>`
-      : `<div>
-          <div class="relative flex justify-between" style="padding:0 4px">
-            <div class="absolute flex gap-0" style="top:16px;left:14%;right:14%;z-index:0">
-              ${[0,1,2].map(i=>`<div class="flex-1 h-1 ${i<step-1?'bg-cyan-400':'bg-gray-200'} ${i===0?'rounded-l-full':''}${i===2?'rounded-r-full':''}"></div>`).join('')}
+        </div>`;
+    } else {
+      const fillWidth = step <= 1 ? '0%' : step === 2 ? '33.33%' : step === 3 ? '66.66%' : '100%';
+      stepsHtml = `
+        <div class="stepper-wrap">
+          <div class="stepper">
+            <div class="stepper-bar-bg">
+              <div class="stepper-bar-fill" style="width:${fillWidth};"></div>
             </div>
-            ${STEPS.map((s,i)=>{
-              const done = i < step-1;
-              const active = i === step-1;
-              const pending = i > step-1;
-              return `<div class="flex flex-col items-center gap-1.5 relative" style="z-index:1;width:25%">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2
-                  ${done ? 'bg-cyan-500 border-cyan-500 text-white'
-                  : active ? 'bg-white border-cyan-500 text-cyan-600 shadow shadow-cyan-100'
-                  : 'bg-white border-gray-200 text-gray-300'}">
-                  ${done ? '✓' : active ? `<div class="w-2.5 h-2.5 rounded-full bg-cyan-500"></div>` : `<span style="font-size:10px">${i+1}</span>`}
-                </div>
-                <div class="text-center" style="font-size:10px;line-height:1.3;font-weight:${active?700:400};color:${done?'#0891B2':active?'#0369A1':'#D1D5DB'}">
-                  ${s.label}
-                </div>
-              </div>`;
+            ${STEPS.map((s, i)=>{
+              const isDone = i < step - 1;
+              const isActive = i === step - 1;
+              const cls = isDone ? 'done' : isActive ? 'active' : '';
+              return `
+                <div class="step-node">
+                  <div class="step-circle ${cls}">
+                    ${isDone ? '✓' : (i + 1)}
+                  </div>
+                  <div class="step-label ${cls}">${s.label}</div>
+                </div>`;
             }).join('')}
           </div>
-          <div class="mt-3 py-2 px-3 rounded-xl text-center" style="background:#EFF6FF">
-            <span class="text-xs font-bold" style="color:#1D4ED8">${cfg.icon} ${cfg.label}</span>
+          <div class="status-pill">
+            ${cfg.icon} สถานะ: ${cfg.label}
           </div>
         </div>`;
+    }
 
-    return `<div class="bg-white border-2 border-gray-200 rounded-2xl p-5 mb-3 fade-in">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <div class="text-xs text-gray-400">รหัสงาน</div>
-          <div class="font-bold text-gray-800 text-xl font-mono">${r.jobId}</div>
+    return `
+      <div class="result-card">
+        <div class="result-header">
+          <div>
+            <div style="font-size:11px; color:#9ca3af;">รหัสงานซ่อม</div>
+            <div class="job-id">${r.jobId}</div>
+          </div>
+          <span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span>
         </div>
-        <span class="text-xs font-bold px-3 py-1.5 rounded-full ${cfg.badge}">${cfg.icon} ${cfg.label}</span>
-      </div>
-      <div class="bg-gray-50 rounded-xl p-3 mb-4">${stepsHtml}</div>
-      <div class="grid grid-cols-2 gap-2 text-sm">
-        ${r.brand||r.model?`<div class="col-span-2 bg-blue-50 rounded-xl px-3 py-2">
-          <div class="text-xs text-gray-400">เครื่อง</div>
-          <div class="font-semibold text-gray-700">${[r.brand,r.model].filter(Boolean).join(' ')}</div>
-        </div>`:''}
-        ${r.date?`<div class="bg-gray-50 rounded-xl px-3 py-2">
-          <div class="text-xs text-gray-400">วันที่รับเครื่อง</div>
-          <div class="font-semibold text-gray-700">${r.date}</div>
-        </div>`:''}
-        ${r.returnDate?`<div class="bg-emerald-50 rounded-xl px-3 py-2">
-          <div class="text-xs text-gray-400">วันที่ส่งคืน</div>
-          <div class="font-semibold text-emerald-600">${r.returnDate}</div>
-        </div>`:''}
-      </div>
-    </div>`;
+
+        ${stepsHtml}
+
+        <div class="details-grid">
+          ${(r.brand || r.model) ? `
+            <div class="detail-box full">
+              <div class="detail-lbl">อุปกรณ์ / เครื่องที่ซ่อม</div>
+              <div class="detail-val" style="color:#1d4ed8;">${[r.brand, r.model].filter(Boolean).join(' ')}</div>
+            </div>` : ''}
+          <div class="detail-box">
+            <div class="detail-lbl">วันที่รับเครื่อง</div>
+            <div class="detail-val">${r.date || '—'}</div>
+          </div>
+          <div class="detail-box">
+            <div class="detail-lbl">วันที่ส่งคืน</div>
+            <div class="detail-val" style="color:#059669;">${r.returnDate || '—'}</div>
+          </div>
+        </div>
+      </div>`;
   }).join('');
 }
 
 function showError(msg){
   document.getElementById('resultArea').innerHTML = `
-    <div class="bg-white border border-red-100 rounded-2xl p-6 text-center fade-in">
-      <div class="text-4xl mb-3">😕</div>
-      <div class="font-semibold text-gray-700 mb-1">ไม่พบข้อมูล</div>
-      <div class="text-sm text-gray-400 whitespace-pre-line">${msg}</div>
+    <div class="error-card">
+      <div style="font-size:36px; margin-bottom:8px;">😕</div>
+      <div style="font-weight:700; color:#374151; font-size:15px; margin-bottom:4px;">ไม่พบข้อมูล</div>
+      <div style="font-size:13px; color:#9ca3af; white-space:pre-line;">${msg}</div>
     </div>`;
 }
 
@@ -273,15 +423,13 @@ function saveHistory(query){
 
 function renderHistory(items){
   const box = document.getElementById('historyBox');
-  if(!items || items.length === 0){ box.classList.add('hidden'); return; }
-  box.classList.remove('hidden');
-  box.innerHTML = `<div class="text-xs text-gray-400 px-1 mb-1">🕐 ค้นหาล่าสุด</div>`
+  if(!items || items.length === 0){ box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  box.innerHTML = `<div style="font-size:11px; color:#9ca3af; margin-bottom:2px;">🕐 ค้นหาล่าสุด:</div>`
     + items.map(h=>`
-      <div class="flex items-center justify-between bg-gray-50 hover:bg-blue-50 border border-gray-100 rounded-xl px-3 py-2 cursor-pointer transition-colors"
-        onclick="selectHistory('${h}')">
-        <span class="text-sm text-gray-700 font-mono">${h}</span>
-        <button onclick="event.stopPropagation();removeHistory('${h}')"
-          class="text-gray-300 hover:text-red-400 text-xs px-1 transition-colors">✕</button>
+      <div class="history-item" onclick="selectHistory('${h}')">
+        <span style="font-family:monospace; font-weight:600; color:#374151;">${h}</span>
+        <span onclick="event.stopPropagation();removeHistory('${h}')" style="color:#9ca3af; padding:2px 6px;">✕</span>
       </div>`).join('');
 }
 
@@ -293,7 +441,7 @@ function filterHistory(val){
 
 function selectHistory(val){
   document.getElementById('searchInput').value = val;
-  document.getElementById('historyBox').classList.add('hidden');
+  document.getElementById('historyBox').style.display = 'none';
   doSearch();
 }
 
@@ -310,12 +458,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const jobFromUrl = params.get('job') || params.get('q');
   if(jobFromUrl){
     input.value = jobFromUrl.trim();
-    setTimeout(doSearch, 400);
+    setTimeout(doSearch, 300);
   }
   input.addEventListener('focus', ()=>filterHistory(input.value));
   document.addEventListener('click', e=>{
     if(!e.target.closest('#searchBox'))
-      document.getElementById('historyBox').classList.add('hidden');
+      document.getElementById('historyBox').style.display = 'none';
   });
   const hist = getHistory();
   if(hist.length > 0) renderHistory(hist);
