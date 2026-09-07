@@ -3,448 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แจ้งซ่อมออนไลน์ — ซ่อมโน๊ตบุ๊ค เชียงใหม่</title>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Repair Assistant</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; }
-  body { background: linear-gradient(135deg, #ecfeff 0%, #eff6ff 100%); min-height: 100vh; color: #111827; padding-bottom: 40px; }
-  
-  /* Header */
-  header {
-    background: #ffffff; border-bottom: 1px solid #e5e7eb;
-    position: sticky; top: 0; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  }
-  .header-wrap {
-    max-width: 580px; margin: 0 auto; padding: 12px 16px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  }
-  .header-brand { display: flex; align-items: center; gap: 12px; }
-  .header-icon {
-    width: 40px; height: 40px; background: #0891b2; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; flex-shrink: 0;
-  }
-  .header-title { font-weight: 700; color: #0e7490; font-size: 16px; line-height: 1.2; }
-  .header-sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
-  .btn-track-nav {
-    display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
-    color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe;
-    padding: 8px 12px; border-radius: 12px; text-decoration: none; flex-shrink: 0; transition: 0.15s;
-  }
-  .btn-track-nav:hover { background: #dbeafe; }
-
-  /* Main Container */
-  .container { max-width: 580px; margin: 20px auto 0; padding: 0 16px; }
-
-  /* Notification Boxes */
-  .closed-banner {
-    display: none; background: #fef2f2; border: 2px solid #fecaca; border-radius: 16px;
-    padding: 20px; text-align: center; margin-bottom: 16px; animation: fadeIn 0.4s ease-out;
-  }
-  .address-box {
-    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px;
-    padding: 16px; margin-bottom: 16px;
-  }
-  .address-label { font-size: 12px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
-  .address-content { font-size: 15px; color: #1e40af; font-weight: 600; line-height: 1.6; white-space: pre-line; }
-
-  /* Section Card */
-  .section-card {
-    background: #ffffff; border-radius: 16px; padding: 20px;
-    border: 1px solid #e5e7eb; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-  }
-  .section-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  .title-cyan { color: #155e75; }
-  .title-amber { color: #92400e; }
-  .section-num {
-    width: 26px; height: 26px; border-radius: 8px; display: flex;
-    align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
-  }
-  .bg-cyan { background: #06b6d4; }
-  .bg-amber { background: #f59e0b; }
-
-  /* Form controls */
-  .form-group { margin-bottom: 14px; }
-  .form-group:last-child { margin-bottom: 0; }
-  .grid-cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .label { display: block; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
-  .required { color: #ef4444; }
-  .input-field {
-    width: 100%; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 12px;
-    font-size: 14px; outline: none; background: #fff; color: #111827; transition: 0.15s;
-  }
-  .input-field:focus { border-color: #0891b2; box-shadow: 0 0 0 3px rgba(8,145,178,0.1); }
-  .input-field.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
-  textarea.input-field { resize: vertical; min-height: 80px; }
-  .err-msg { font-size: 11px; color: #ef4444; margin-top: 4px; display: none; }
-  .char-count { font-size: 12px; color: #9ca3af; text-align: right; margin-top: 4px; }
-
-  /* Info Note */
-  .info-card {
-    background: #fffbeb; border: 1px solid #fef3c7; border-radius: 14px;
-    padding: 16px; margin-bottom: 16px; display: flex; gap: 10px;
-  }
-  .info-title { font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 4px; }
-  .info-list { font-size: 12px; color: #b45309; padding-left: 18px; line-height: 1.6; }
-
-  /* Buttons */
-  .btn-submit {
-    width: 100%; background: #0891b2; color: #ffffff; padding: 15px;
-    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
-    cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(8,145,178,0.3);
-  }
-  .btn-submit:hover { background: #0e7490; }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* Success Screen & Card */
-  #successSection { display: none; }
-  .success-box { background: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .receipt-card { padding: 24px; }
-  .receipt-header { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 2px dashed #e5e7eb; }
-  .receipt-row { display: flex; justify-content: space-between; border-bottom: 1px dotted #e5e7eb; padding-bottom: 8px; margin-bottom: 8px; font-size: 14px; }
-  .receipt-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-  .receipt-group-box { background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
-  .receipt-tag { font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
-  
-  .btn-emerald {
-    width: 100%; background: #10b981; color: #fff; padding: 14px; border-radius: 12px;
-    font-size: 14px; font-weight: 700; border: none; cursor: pointer; margin-bottom: 8px;
-  }
-  .btn-blue {
-    width: 100%; background: #2563eb; color: #fff; padding: 14px; border-radius: 12px;
-    font-size: 14px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; display: block; text-align: center; margin-bottom: 8px;
-  }
-  .btn-gray {
-    width: 100%; background: #fff; color: #6b7280; padding: 10px; border-radius: 12px;
-    font-size: 13px; border: 1px solid #e5e7eb; cursor: pointer;
-  }
-
-  /* Overlay */
-  .overlay {
-    position: fixed; inset: 0; background: rgba(255,255,255,0.85);
-    display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); z-index: 50; flex-direction: column; gap: 10px;
-  }
-  .spinner {
-    width: 44px; height: 44px; border: 4px solid #cffafe; border-top-color: #0891b2;
-    border-radius: 50%; animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .hp-field { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  :root{--ink:#102033;--muted:#64748b;--blue:#2563eb;--blue-dark:#1d4ed8;--soft:#eff6ff;--line:#dbe4ef;--danger:#dc2626;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif;color:var(--ink);background:linear-gradient(180deg,#0f1d38 0 190px,#eef3f9 190px 100%)}
+  .header{max-width:720px;margin:auto;padding:28px 20px 42px;color:white}
+  .eyebrow{color:#93c5fd;font-size:12px;font-weight:700;letter-spacing:.08em}
+  h1{margin:6px 0 0;font-size:28px}
+  .wrap{max-width:720px;margin:-20px auto 40px;padding:0 16px}
+  .panel{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 8px 24px #10203312}
+  h2{margin:0;font-size:20px}.sub{margin:5px 0 18px;color:var(--muted);font-size:14px}
+  .voice{display:grid;place-items:center;background:var(--soft);border:1px solid #bfdbfe;border-radius:14px;padding:18px;margin-bottom:18px;text-align:center}
+  #voiceBtn{width:78px;height:78px;border:0;border-radius:50%;background:var(--blue);color:#fff;font-size:31px;cursor:pointer;box-shadow:0 8px 18px #2563eb40}
+  #voiceBtn.listening{background:var(--danger);animation:pulse 1.2s infinite}
+  #voiceBtn:disabled{opacity:.5;cursor:not-allowed}
+  #voiceStatus{margin-top:10px;color:var(--muted);font-weight:700;font-size:14px}
+  #preview{width:100%;min-height:24px;margin-top:8px;text-align:left;font-size:14px;word-break:break-word}
+  @keyframes pulse{50%{box-shadow:0 0 0 12px #dc262600}}
+  .field{margin-bottom:13px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  label{display:block;margin-bottom:5px;color:var(--muted);font-size:13px;font-weight:700}
+  input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;color:var(--ink)}
+  input:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px #bfdbfe}
+  .save{width:100%;padding:13px;border:0;border-radius:11px;background:var(--blue);color:white;font:inherit;font-weight:700;cursor:pointer}.save:hover{background:var(--blue-dark)}
+  .save:disabled{opacity:.6;cursor:wait}.hint{margin:14px 0 0;color:var(--muted);font-size:12px;text-align:center}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:#102033;color:#fff;padding:12px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;max-width:90%;text-align:center}#toast.show{opacity:1;transform:translate(-50%,0)}
+  @media(max-width:560px){.row{grid-template-columns:1fr 1fr}.panel{padding:18px}}
 </style>
 </head>
 <body>
-
-<iframe name="gasHiddenFrame" id="gasHiddenFrame" style="display:none;"></iframe>
-<form id="gasSubmitForm" method="POST" action="https://script.google.com/macros/s/AKfycbzbKYfyySLWJjxAinlejn4ZoFm3hAMdZGubHSZ5EQDuw9WpQqDccfKrGbs-KrhVV5iS-w/exec" target="gasHiddenFrame" style="display:none;">
-  <input type="hidden" name="payload" id="gasPayload">
-</form>
-
-<header>
-  <div class="header-wrap">
-    <div class="header-brand">
-      <div class="header-icon">🔧</div>
-      <div>
-        <div class="header-title">แจ้งซ่อมออนไลน์</div>
-        <div class="header-sub">กรอกข้อมูลเพื่อส่งเครื่องซ่อม</div>
-      </div>
-    </div>
-    <a href="track.html" class="btn-track-nav">🔍 ติดตามงานซ่อม</a>
+<header class="header"><div class="eyebrow">CHIANG MAI · LAPTOP &amp; PC SERVICE</div><h1>🔧 Repair Assistant</h1></header>
+<main class="wrap"><section class="panel">
+  <h2>เพิ่มนัดหมายใหม่</h2>
+  <p class="sub">พูดภาษาไทยหรือกรอกข้อมูลด้วยตัวเอง</p>
+  <div class="voice">
+    <button id="voiceBtn" type="button" aria-label="เริ่มพูดนัดหมาย">🎙️</button>
+    <div id="voiceStatus">แตะเพื่อพูดบันทึกนัดหมาย</div>
+    <div id="preview" aria-live="polite"></div>
   </div>
-</header>
-
-<div class="container" id="formSection">
-  <div id="closedBanner" class="closed-banner">
-    <div style="font-size:32px; margin-bottom:8px;">🚫</div>
-    <div style="font-weight:700; color:#b91c1c; font-size:17px; margin-bottom:4px;">ปิดรับงานซ่อมออนไลน์ชั่วคราว</div>
-    <div style="font-size:13px; color:#dc2626;">ขณะนี้มีงานซ่อมเข้ามาเป็นจำนวนมาก ทำให้การซ่อมอาจเกิดความล่าช้า<br>กรุณาติดต่อกลับมาในภายหลัง</div>
+  <div class="field"><label for="name">ชื่อลูกค้า</label><input id="name" placeholder="เช่น คุณสมชาย"></div>
+  <div class="row">
+    <div class="field"><label for="phone">เบอร์โทร</label><input id="phone" placeholder="08x-xxx-xxxx" inputmode="tel"></div>
+    <div class="field"><label for="date">วันที่</label><input id="date" type="date"></div>
   </div>
-
-  <div id="shopAddressBox" class="address-box">
-    <div class="address-label">📦 ส่งเครื่องมาที่</div>
-    <div id="shopAddress" class="address-content">นายกานต์นิธิ สุกัณทา
-555/99 ม.4 ซ.8 (หมู่บ้านดีญ่า วาเลย์ สารภี)
-ต.หนองผึ้ง อ.สารภี จ.เชียงใหม่ 50140
-Tel. 063-594-2636</div>
+  <div class="row">
+    <div class="field"><label for="time">เวลา</label><input id="time" placeholder="เช่น 14:00" inputmode="numeric"></div>
+    <div class="field"><label for="job">งาน</label><input id="job" placeholder="เช่น เปลี่ยนจอ"></div>
   </div>
-
-  <div id="openForm">
-    <!-- 1: ข้อมูลผู้ส่งซ่อม -->
-    <div class="section-card">
-      <div class="section-title title-cyan">
-        <span class="section-num bg-cyan">1</span> ข้อมูลผู้ส่งซ่อม
-      </div>
-      <input type="text" id="hp_website" class="hp-field" autocomplete="off" tabindex="-1">
-      <div class="form-group">
-        <label class="label">ชื่อ-นามสกุล <span class="required">*</span></label>
-        <input type="text" id="cName" class="input-field" placeholder="กรอกชื่อ-นามสกุล" maxlength="100">
-        <div class="err-msg" id="errName">กรุณากรอกชื่อ-นามสกุล (ไม่เกิน 100 ตัวอักษร)</div>
-      </div>
-      <div class="form-group">
-        <label class="label">เบอร์โทรศัพท์ <span class="required">*</span></label>
-        <input type="tel" id="cPhone" class="input-field" placeholder="08X-XXX-XXXX" maxlength="15" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-        <div class="err-msg" id="errPhone">กรุณากรอกเบอร์โทรให้ถูกต้อง (ตัวเลข 9-10 หลัก)</div>
-      </div>
-      <div class="form-group">
-        <label class="label">ที่อยู่สำหรับจัดส่งคืนเครื่อง <span class="required">*</span></label>
-        <textarea id="cAddress" class="input-field" rows="3" placeholder="บ้านเลขที่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์" maxlength="300"></textarea>
-        <div class="err-msg" id="errAddress">กรุณากรอกที่อยู่สำหรับจัดส่งคืนเครื่อง (อย่างน้อย 10 ตัวอักษร)</div>
-      </div>
-      <div class="form-group">
-        <label class="label">บริษัทขนส่งที่จะใช้ส่งเครื่องมา <span class="required">*</span></label>
-        <select id="cShipping" class="input-field">
-          <option value="">— เลือกบริษัทขนส่ง —</option>
-          <option>Flash Express</option>
-          <option>Kerry</option>
-          <option>ไปรษณีย์ไทย</option>
-          <option>J&T Express</option>
-          <option>DHL</option>
-          <option>Ninja Van</option>
-          <option>อื่นๆ</option>
-        </select>
-        <div class="err-msg" id="errShipping">กรุณาเลือกบริษัทขนส่ง</div>
-      </div>
-    </div>
-
-    <!-- 2: ข้อมูลเครื่อง -->
-    <div class="section-card">
-      <div class="section-title title-amber">
-        <span class="section-num bg-amber">2</span> ข้อมูลเครื่องที่ต้องการซ่อม
-      </div>
-      <div class="grid-cols-2 form-group">
-        <div>
-          <label class="label">ยี่ห้อ</label>
-          <select id="cBrand" class="input-field">
-            <option value="">— เลือก —</option>
-            <option>ASUS</option><option>Acer</option><option>HP</option><option>Dell</option>
-            <option>Lenovo</option><option>Apple</option><option>MSI</option>
-            <option>Toshiba</option><option>Samsung</option><option>อื่นๆ</option>
-          </select>
-        </div>
-        <div>
-          <label class="label">รุ่น (Model)</label>
-          <input type="text" id="cModel" class="input-field" placeholder="(ไม่ต้องกรอกก็ได้)" maxlength="100">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="label">Serial Number (S/N)</label>
-        <input type="text" id="cSN" class="input-field" placeholder="หาได้ที่สติกเกอร์ด้านใต้เครื่อง (ไม่ต้องกรอกก็ได้)" maxlength="100" style="font-family:monospace">
-      </div>
-      <div class="form-group">
-        <label class="label">อาการเสียที่ต้องการแจ้ง <span class="required">*</span></label>
-        <textarea id="cSymptom" class="input-field" placeholder="อธิบายอาการเสียให้ละเอียด เช่น จอไม่ติด เปิดไม่ขึ้น ร้อนมาก แบตไม่ชาร์จ..." maxlength="500"></textarea>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div class="err-msg" id="errSymptom">กรุณาอธิบายอาการเสียอย่างน้อย 10 ตัวอักษร</div>
-          <div class="char-count" style="margin-left:auto;"><span id="charCount">0</span>/500</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Info Box -->
-    <div class="info-card">
-      <div style="font-size:20px;">⚠️</div>
-      <div>
-        <div class="info-title">ข้อมูลสำคัญก่อนส่ง</div>
-        <ul class="info-list">
-          <li>กรุณาสำรองข้อมูลในเครื่องก่อนส่งซ่อม</li>
-          <li>แพ็คเครื่องให้มิดชิด ป้องกันการกระแทก</li>
-          <li>ทีมงานจะติดต่อกลับเพื่อแจ้งราคาก่อนซ่อมทุกครั้ง</li>
-          <li>ค่าใช้จ่ายในการประเมินอาการ ฟรี!</li>
-        </ul>
-      </div>
-    </div>
-
-    <button type="button" id="submitBtn" class="btn-submit" onclick="submitForm()">📤 ส่งคำขอซ่อม</button>
-    <p style="text-align:center; font-size:12px; color:#9ca3af; margin-top:12px;">ทีมงานได้รับคำขอของคุณแล้วจะรับเข้าระบบทันที</p>
-  </div>
-</div>
-
-<!-- Success Screen (โครงสร้างเดิมที่ถ่ายรูปได้) -->
-<div class="container" id="successSection">
-  <div class="success-box">
-    <div id="receiptCard" class="receipt-card">
-      <div class="receipt-header">
-        <div class="header-icon" style="width:48px; height:48px; font-size:24px;">🔧</div>
-        <div>
-          <div style="font-weight:700; color:#0e7490; font-size:16px;">ซ่อมโน๊ตบุ๊ค เชียงใหม่</div>
-          <div style="font-size:12px; color:#9ca3af;">📞 063-594-2636</div>
-        </div>
-        <div style="margin-left:auto; text-align:right;">
-          <div style="font-size:12px; color:#9ca3af;">วันที่แจ้ง</div>
-          <div id="sDate" style="font-size:13px; font-weight:700; color:#374151;">-</div>
-          <div id="sTime" style="font-size:11px; color:#9ca3af;">-</div>
-        </div>
-      </div>
-
-      <div style="text-align:center; margin-bottom:16px;">
-        <div style="font-size:40px; margin-bottom:4px;">✅</div>
-        <div style="font-weight:700; font-size:18px; color:#1f2937;">ส่งคำขอซ่อมสำเร็จ!</div>
-        <div style="font-size:12px; color:#9ca3af; margin-top:2px;">ทีมงานจะติดต่อกลับทางเบอร์โทรที่ให้ไว้</div>
-      </div>
-
-      <div style="background:#fffbeb; border:1px solid #fef3c7; border-radius:12px; padding:12px; margin-bottom:14px; font-size:12px; color:#b45309;">
-        <div style="font-weight:700; margin-bottom:4px;">📌 ขั้นตอนถัดไป</div>
-        <div style="line-height:1.6;">
-          1️⃣ แพ็คเครื่องให้มิดชิดแล้ว<strong>ส่งเครื่องมาที่ร้าน</strong>ตามที่อยู่ด้านบน<br>
-          2️⃣ เมื่อร้าน<strong>ได้รับเครื่องแล้ว</strong> จะรับเข้าระบบ<br>
-          3️⃣ หลังรับเข้าระบบแล้ว คุณจะสามารถ <strong>"ใช้เบอร์โทรศัพท์ ของคุณ"</strong> เพื่อติดตามสถานะการซ่อมได้
-        </div>
-      </div>
-
-      <div class="receipt-group-box">
-        <div class="receipt-tag" style="color:#0891b2;">👤 ข้อมูลผู้แจ้ง</div>
-        <div class="receipt-row"><span style="color:#9ca3af;">ชื่อ</span><span style="font-weight:600;" id="sName">-</span></div>
-        <div class="receipt-row"><span style="color:#9ca3af;">เบอร์โทร</span><span style="font-weight:600;" id="sPhone">-</span></div>
-        <div class="receipt-row"><span style="color:#9ca3af;">ขนส่ง</span><span style="font-weight:600;" id="sShipping">-</span></div>
-
-        <div class="receipt-tag" style="color:#d97706; margin-top:12px;">💻 ข้อมูลเครื่อง</div>
-        <div class="receipt-row"><span style="color:#9ca3af;">ยี่ห้อ / รุ่น</span><span style="font-weight:600;" id="sBrand">-</span></div>
-        <div class="receipt-row"><span style="color:#9ca3af;">อาการ</span><span style="font-weight:600; text-align:right;" id="sSymptom">-</span></div>
-      </div>
-
-      <div style="text-align:center; font-size:12px; color:#9ca3af; border-top:1px dashed #e5e7eb; pt:12px; padding-top:10px;">
-        📌 กรุณาบันทึกรูปนี้ไว้เพื่อเป็นหลักฐาน
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div id="receiptActions" style="padding:0 24px 24px;">
-      <button type="button" class="btn-emerald" onclick="saveAsImage()">📸 บันทึกรูปหลักฐาน</button>
-      <a href="track.html" class="btn-blue">🔍 ติดตามสถานะงานซ่อม</a>
-      <button type="button" class="btn-gray" onclick="location.reload()">ส่งคำขออีกครั้ง</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div style="font-size:14px; font-weight:600; color:#374151;" id="loadingText">กำลังส่งคำขอ...</div>
-</div>
-
+  <div class="field"><label for="note">หมายเหตุ</label><input id="note" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></div>
+  <button class="save" id="saveBtn" type="button">💾 บันทึกนัดหมาย</button>
+  <p class="hint">หน้านี้ใช้ไมโครโฟนของเบราว์เซอร์โดยตรง และบันทึกข้อมูลลง Google Sheet</p>
+</section></main>
+<div id="toast"></div><iframe name="saveTarget" id="saveTarget" hidden></iframe>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbzbKYfyySLWJjxAinlejn4ZoFm3hAMdZGubHSZ5EQDuw9WpQqDccfKrGbs-KrhVV5iS-w/exec';
-
-async function initForm() {
-  try {
-    const res = await fetch(`${API_URL}?action=getShopStatus`);
-    const data = await res.json();
-    if (data.address) document.getElementById('shopAddress').textContent = data.address;
-    if (!data.isOpen) {
-      document.getElementById('closedBanner').style.display = 'block';
-      document.getElementById('openForm').style.display = 'none';
-      document.getElementById('shopAddressBox').style.display = 'none';
-    }
-  } catch(e) {}
-
-  document.getElementById('cSymptom').addEventListener('input', function(){
-    document.getElementById('charCount').textContent = this.value.length;
-  });
-}
-
-function validateForm(name, phone, address, shipping, symptom) {
-  let valid = true;
-  ['cName','cPhone','cAddress','cShipping','cSymptom'].forEach(id => {
-    document.getElementById(id).classList.remove('error');
-  });
-  ['errName','errPhone','errAddress','errShipping','errSymptom'].forEach(id => {
-    document.getElementById(id).style.display = 'none';
-  });
-
-  if (!name || name.length < 2) {
-    document.getElementById('cName').classList.add('error');
-    document.getElementById('errName').style.display = 'block';
-    valid = false;
-  }
-  const phoneClean = phone.replace(/[-\s]/g, '');
-  if (!/^[0-9]{9,10}$/.test(phoneClean)) {
-    document.getElementById('cPhone').classList.add('error');
-    document.getElementById('errPhone').style.display = 'block';
-    valid = false;
-  }
-  if (!address || address.trim().length < 10) {
-    document.getElementById('cAddress').classList.add('error');
-    document.getElementById('errAddress').style.display = 'block';
-    valid = false;
-  }
-  if (!shipping) {
-    document.getElementById('cShipping').classList.add('error');
-    document.getElementById('errShipping').style.display = 'block';
-    valid = false;
-  }
-  if (!symptom || symptom.trim().length < 10) {
-    document.getElementById('cSymptom').classList.add('error');
-    document.getElementById('errSymptom').style.display = 'block';
-    valid = false;
-  }
-  return valid;
-}
-
-async function submitForm() {
-  const name     = document.getElementById('cName').value.trim();
-  const phone    = document.getElementById('cPhone').value.trim();
-  const address  = document.getElementById('cAddress').value.trim();
-  const shipping = document.getElementById('cShipping').value;
-  const symptom  = document.getElementById('cSymptom').value.trim();
-  const brand    = document.getElementById('cBrand').value;
-  const model    = document.getElementById('cModel').value.trim();
-  const sn       = document.getElementById('cSN').value.trim();
-
-  if (document.getElementById('hp_website').value !== '') return;
-  if (!validateForm(name, phone, address, shipping, symptom)) return;
-
-  const payload = {
-    action: 'submitRequest',
-    name, phone, address, shipping, symptom, brand, model, sn
-  };
-
-  const overlay = document.getElementById('loadingOverlay');
-  const btn = document.getElementById('submitBtn');
-  overlay.style.display = 'flex';
-  btn.disabled = true;
-
-  document.getElementById('gasPayload').value = JSON.stringify(payload);
-  document.getElementById('gasSubmitForm').submit();
-
-  const now = new Date();
-  document.getElementById('sDate').textContent = now.toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' });
-  document.getElementById('sTime').textContent = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' }) + ' น.';
-  document.getElementById('sName').textContent = name;
-  document.getElementById('sPhone').textContent = phone;
-  document.getElementById('sShipping').textContent = shipping;
-  document.getElementById('sBrand').textContent = [brand, model].filter(Boolean).join(' ') || '-';
-  document.getElementById('sSymptom').textContent = symptom;
-
-  overlay.style.display = 'none';
-  document.getElementById('formSection').style.display = 'none';
-  document.getElementById('successSection').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function saveAsImage() {
-  const card = document.getElementById('receiptCard');
-  const actions = document.getElementById('receiptActions');
-  const overlay = document.getElementById('loadingOverlay');
-  document.getElementById('loadingText').textContent = 'กำลังสร้างรูปภาพ...';
-  actions.style.display = 'none';
-  overlay.style.display = 'flex';
-
-  html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false }).then(canvas => {
-    overlay.style.display = 'none';
-    actions.style.display = 'block';
-    const now = new Date();
-    const name = `แจ้งซ่อม_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.png`;
-    const link = document.createElement('a');
-    link.download = name;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  }).catch(() => {
-    overlay.style.display = 'none';
-    actions.style.display = 'block';
-    alert('ไม่สามารถบันทึกรูปได้ กรุณากดค้างที่หน้าจอแล้วบันทึกรูปภาพแทนครับ');
-  });
-}
-
-initForm();
-</script>
-</body>
-</html>
+const GAS_ENDPOINT='https://script.google.com/macros/s/AKfycbwp3NYz2WONBWBmtZoKT3hizu_hsqPik6_pYdKAfRoTP2NAJLq73tr2whgqGLPrLXSg/exec';
+let recognition=null, finalText='';
+const $=id=>document.getElementById(id);
+function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),3000)}
+function dateString(date){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0')}
+function phoneFrom(text){const m=text.match(/(?:เบอร์โทร|เบอร์|โทรศัพท์)\s*[:：]?\s*([0-9๐-๙][0-9๐-๙\-\s]{8,}[0-9๐-๙])/i);if(!m)return'';return m[1].replace(/[๐-๙]/g,d=>'๐๑๒๓๔๕๖๗๘๙'.indexOf(d)).replace(/[\s-]/g,'')}
+function timeFrom(text){const direct=text.match(/(?:เวลา\s*)?([01]?\d|2[0-3])\s*[:.]\s*([0-5]\d)/i);if(direct)return String(direct[1]).padStart(2,'0')+':'+direct[2];const map={'บ่ายโมง':13,'บ่ายสอง':14,'บ่ายสาม':15,'สี่โมงเย็น':16,'ห้าโมงเย็น':17,'หกโมงเย็น':18,'เก้าโมงเช้า':9,'สิบโมงเช้า':10,'สิบเอ็ดโมงเช้า':11,'เที่ยง':12};for(const key in map)if(text.includes(key))return String(map[key]).padStart(2,'0')+':00';const h=text.match(/(\d{1,2})\s*โมง/);return h?String(parseInt(h[1],10)+(text.includes('บ่าย')?12:0)).padStart(2,'0')+':00':''}
+function dateFrom(text){const now=new Date();if(text.includes('พรุ่งนี้')){now.setDate(now.getDate()+1);return dateString(now)}if(text.includes('วันนี้'))return dateString(now);const months={'มกราคม':1,'กุมภาพันธ์':2,'มีนาคม':3,'เมษายน':4,'พฤษภาคม':5,'มิถุนายน':6,'กรกฎาคม':7,'สิงหาคม':8,'กันยายน':9,'ตุลาคม':10,'พฤศจิกายน':11,'ธันวาคม':12};const m=text.match(new RegExp('(\\d{1,2})\\s*(?:เดือน)?\\s*('+Object.keys(months).join('|')+')(?:\\s*(?:ปี)?\\s*(\\d{2,4}))?'));if(!m)return'';let year=m[3]?parseInt(m[3],10):now.getFullYear();if(year<100)year+=2500;if(year>=2400)year-=543;return year+'-'+String(months[m[2]]).padStart(2,'0')+'-'+m[1].padStart(2,'0')}
+function fillFromVoice(text){const n=text.match(/(?:ชื่อลูกค้า|ลูกค้า|นัดคุณ|นัด)\s*([^,\n]+?)(?=\s*(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ|$))/i);if(n)$('name').value=n[1].trim();const phone=phoneFrom(text),date=dateFrom(text),time=timeFrom(text);if(phone)$('phone').value=phone;if(date)$('date').value=date;if(time)$('time').value=time;const job=text.match(/(?:อาการ|งาน|ทำ|ซ่อม|เปลี่ยน)\s*([^,\n]+?)(?=\s*(?:หมายเหตุ|$))/i);if(job)$('job').value=job[1].trim();const note=text.match(/หมายเหตุ\s*(.+)$/i);if(note)$('note').value=note[1].trim()}
+function setupVoice(){const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Recognition){$('voiceBtn').disabled=true;$('voiceStatus').textContent='เบราว์เซอร์นี้ไม่รองรับ Speech Recognition';return}recognition=new Recognition();recognition.lang='th-TH';recognition.continuous=true;recognition.interimResults=true;recognition.onstart=()=>{$('voiceBtn').classList.add('listening');$('voiceStatus').textContent='🔴 กำลังฟัง... พูดได้เลย';finalText=''};recognition.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+' ';else interim+=t}$('preview').textContent=(finalText+interim).trim();fillFromVoice((finalText+interim).trim())};recognition.onerror=e=>{$('voiceBtn').classList.remove('listening');$('voiceStatus').textContent=e.error==='not-allowed'?'เบราว์เซอร์ไม่อนุญาตไมโครโฟน':'ฟังเสียงไม่สำเร็จ ลองใหม่อีกครั้ง'};recognition.onend=()=>{$('voiceBtn').classList.remove('listening');if($('voiceStatus').textContent.includes('กำลังฟัง'))$('voiceStatus').textContent='แตะเพื่อพูดบันทึกนัดหมาย'};$('voiceBtn').onclick=()=>{if($('voiceBtn').classList.contains('listening'))recognition.stop();else{try{recognition.start()}catch(e){}}}}
+function save(){const data={name:$('name').value.trim(),phone:$('phone').value.trim(),date:$('date').value,time:$('time').value.trim(),job:$('job').value.trim(),note:$('note').value.trim()};if(!data.name||!data.date||!data.time){toast('กรุณากรอกชื่อ วันที่ และเวลาให้ครบ');return}const button=$('saveBtn');button.disabled=true;button.textContent='กำลังบันทึก...';const query=new URLSearchParams(data).toString();$('saveTarget').onload=()=>{button.disabled=false;button.textContent='💾 บันทึกนัดหมาย';toast('บันทึกนัดหมายเรียบร้อยแล้ว ✅');['name','phone','date','time','job','note'].forEach(id=>$(id).value='');$('preview').textContent=''};$('saveTarget').src=GAS_ENDPOINT+'?'+query}
+$('saveBtn').onclick=save;setupVoice();
+</script></body></html>
