@@ -317,59 +317,70 @@
     }
 
     function parseAppointmentDate(value) {
-      let source = normalizeThaiWords(String(value || '').replace(/\s+/g, ' ').trim());
-      const now = new Date();
+  let source = normalizeThaiWords(String(value || '').replace(/\s+/g, ' ').trim());
+  const now = new Date();
 
-      // 1. ตรวจจับ: อีก N วัน
-      const days = relativeDays(source);
-      if (days) {
-        const target = new Date();
-        target.setDate(target.getDate() + days);
-        return dateString(target);
-      }
+  // 1. ตรวจจับ: อีก N วัน
+  const days = relativeDays(source);
+  if (days) {
+    const target = new Date();
+    target.setDate(target.getDate() + days);
+    return dateString(target);
+  }
 
-      // 2. ตรวจจับ: พรุ่งนี้ / วันนี้
-      if (source.includes('พรุ่งนี้')) {
-        const target = new Date();
-        target.setDate(target.getDate() + 1);
-        return dateString(target);
-      }
-      if (source.includes('วันนี้')) {
-        return dateString(now);
-      }
+  // 2. ตรวจจับ: พรุ่งนี้ / วันนี้
+  if (source.includes('พรุ่งนี้')) {
+    const target = new Date();
+    target.setDate(target.getDate() + 1);
+    return dateString(target);
+  }
+  if (source.includes('วันนี้')) {
+    return dateString(now);
+  }
 
-      // 3. ตรวจจับ: "วันที่ 9 เดือน 9 ปี 69" หรือ "9 เดือน 9" หรือ "9/9/69"
-      const speechPattern = /(?:วันที่\s*)?(\d{1,2})\s*(?:เดือน\s*|[\/\-\.])\s*(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/i;
-      const speechMatch = source.match(speechPattern);
-      if (speechMatch) {
-        const d = Number(speechMatch[1]);
-        const m = Number(speechMatch[2]);
-        if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
-          const y = toGregorianYear(speechMatch[3] || now.getFullYear());
-          return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-        }
-      }
-
-      // 4. ตรวจจับ: ชื่อเดือนเต็ม/ย่อ
-      const months = {
-        'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
-        'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12,
-        'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6,
-        'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12
-      };
-      const monthRegex = new RegExp('(?:วันที่\\s*)?(\\d{1,2})\\s*(?:เดือน\\s*)?(' + Object.keys(months).join('|') + ')(?:\\s*(?:ปี\\s*)?(\\d{2,4}))?', 'i');
-      const monthMatch = source.match(monthRegex);
-      if (monthMatch) {
-        const d = Number(monthMatch[1]);
-        const m = months[monthMatch[2]];
-        if (d >= 1 && d <= 31 && m) {
-          const y = toGregorianYear(monthMatch[3] || now.getFullYear());
-          return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-        }
-      }
-
-      return '';
+  // 3. ตรวจจับ: "วันที่ 8 เดือน 9 ปี 69" (บังคับคำว่า "วันที่" นำหน้า ป้องกันเลขเบอร์โทรหลุดมาชน)
+  const speechWithWord = source.match(/วันที่\s*(\d{1,2})\s*(?:เดือน\s*|[\/\-\.])\s*(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/i);
+  if (speechWithWord) {
+    const d = Number(speechWithWord[1]);
+    const m = Number(speechWithWord[2]);
+    if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
+      const y = toGregorianYear(speechWithWord[3] || now.getFullYear());
+      return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     }
+  }
+
+  // 4. ตรวจจับกรณีไม่มีคำว่า "วันที่" แต่มีเว้นวรรคชัดเจน เช่น "8 เดือน 9 ปี 69" หรือ "8/9/69"
+  const speechPattern = /(?:^|[^\d])(\d{1,2})\s*(?:เดือน\s*|[\/\-\.])\s*(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/i;
+  const speechMatch = source.match(speechPattern);
+  if (speechMatch) {
+    const d = Number(speechMatch[1]);
+    const m = Number(speechMatch[2]);
+    if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
+      const y = toGregorianYear(speechMatch[3] || now.getFullYear());
+      return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    }
+  }
+
+  // 5. ตรวจจับ: ชื่อเดือนเต็ม/ย่อ
+  const months = {
+    'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
+    'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12,
+    'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6,
+    'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12
+  };
+  const monthRegex = new RegExp('(?:วันที่\\s*)?(\\d{1,2})\\s*(?:เดือน\\s*)?(' + Object.keys(months).join('|') + ')(?:\\s*(?:ปี\\s*)?(\\d{2,4}))?', 'i');
+  const monthMatch = source.match(monthRegex);
+  if (monthMatch) {
+    const d = Number(monthMatch[1]);
+    const m = months[monthMatch[2]];
+    if (d >= 1 && d <= 31 && m) {
+      const y = toGregorianYear(monthMatch[3] || now.getFullYear());
+      return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    }
+  }
+
+  return '';
+}
 
     function fillFromVoice(text) {
       const named = text.match(/((?:คุณ|พี่|ช่าง|น้อง)\s*[^,\s]+?)(?=\s*(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ|$))/i);
