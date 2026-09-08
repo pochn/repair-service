@@ -92,8 +92,9 @@ function parseAppointmentDate(value){
   if(days){now.setDate(now.getDate()+days);return dateString(now)}
   if(source.includes('พรุ่งนี้')){now.setDate(now.getDate()+1);return dateString(now)}
   if(source.includes('วันนี้'))return dateString(now);
-  let match=source.match(/(?:วันที่\s*)?(\d{1,2})\s*(?:เดือน\s*|[\/-])(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/i);
-  if(match&&validDateParts(Number(match[1]),Number(match[2])))return toGregorianYear(match[3]||now.getFullYear())+'-'+String(match[2]).padStart(2,'0')+'-'+String(match[1]).padStart(2,'0');
+  const numericDatePattern=/(?:วันที่\s*)?(\d{1,2})\s*(?:เดือน\s*|[\/-])(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/gi;
+  let match;
+  while((match=numericDatePattern.exec(source))!==null){if(validDateParts(Number(match[1]),Number(match[2])))return toGregorianYear(match[3]||now.getFullYear())+'-'+String(match[2]).padStart(2,'0')+'-'+String(match[1]).padStart(2,'0')}
   const months={'มกราคม':1,'กุมภาพันธ์':2,'มีนาคม':3,'เมษายน':4,'พฤษภาคม':5,'มิถุนายน':6,'กรกฎาคม':7,'สิงหาคม':8,'กันยายน':9,'ตุลาคม':10,'พฤศจิกายน':11,'ธันวาคม':12};
   match=source.match(new RegExp('(\\d{1,2})\\s*(?:เดือน)?\\s*('+Object.keys(months).join('|')+')(?:\\s*(?:ปี)?\\s*(\\d{2,4}))?'));
   if(!match||!validDateParts(Number(match[1]),months[match[2]]))return '';
