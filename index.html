@@ -654,90 +654,83 @@
         ' | 🕒 ' +
         now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
     }
+function setupVoice() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    $('voiceBtn').disabled = true;
+    $('voiceStatus').textContent = 'เบราว์เซอร์นี้ไม่รองรับ Speech Recognition';
+    return;
+  }
 
-    function setupVoice() {
-      const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!Recognition) {
-        $('voiceBtn').disabled = true;
-        $('voiceStatus').textContent = 'เบราว์เซอร์นี้ไม่รองรับ Speech Recognition';
-        return;
-      }
+  recognition = new Recognition();
+  recognition.lang = 'th-TH';
+  recognition.continuous = true;
+  recognition.interimResults = true;
 
-      recognition = new Recognition();
-      recognition.lang = 'th-TH';
-      recognition.continuous = true;
-      recognition.interimResults = true;
+  recognition.onstart = () => {
+    isUserStopping = false;
+    $('voiceBtn').classList.add('listening');
+    $('voiceStatus').textContent = '🔴 กำลังฟัง... พูดชื่อ วัน เวลา งาน ได้ยาวๆ เลยครับ';
+    $('preview').textContent = '';
+  };
 
-      recognition.onstart = () => {
-        isUserStopping = false;
-        $('voiceBtn').classList.add('listening');
-        $('voiceStatus').textContent = '🔴 กำลังฟัง... พูดชื่อ วัน เวลา งาน ได้ยาวๆ เลยครับ';
-        $('preview').textContent = '';
-        finalText = '';
-      };
+  recognition.onresult = (e) => {
+    clearTimeout(speechTimeout);
 
-      recognition.onresult = e => {
-        let interimTranscript = '';
-        clearTimeout(speechTimeout);
-
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const piece = e.results[i][0].transcript;
-          if (e.results[i].isFinal) {
-            finalText += piece + ' ';
-          } else {
-            interimTranscript += piece;
-          }
-        }
-
-        const currentCombined = (finalText + interimTranscript).trim();
-        if (currentCombined) {
-          $('preview').textContent = currentCombined;
-          fillFromVoice(currentCombined);
-        }
-
-        // เมื่อหยุดพูดเกิน 2.5 วินาที ให้ปิดไมค์อัตโนมัติ
-        speechTimeout = setTimeout(() => {
-          if ($('voiceBtn').classList.contains('listening')) {
-            recognition.stop();
-          }
-        }, 2500);
-      };
-
-      recognition.onerror = e => {
-        if (e.error === 'no-speech') return;
-        $('voiceBtn').classList.remove('listening');
-        $('voiceStatus').textContent = e.error === 'not-allowed'
-          ? 'เบราว์เซอร์ไม่อนุญาตไมโครโฟน'
-          : 'ฟังเสียงไม่สำเร็จ ลองแตะใหม่อีกครั้ง';
-      };
-
-      recognition.onend = () => {
-        clearTimeout(speechTimeout);
-        $('voiceBtn').classList.remove('listening');
-        $('voiceStatus').textContent = 'แตะเพื่อพูดบันทึกนัดหมาย';
-
-        const textToProcess = ($('preview').textContent || finalText).trim();
-        if (textToProcess) {
-          fillFromVoice(textToProcess);
-        }
-      };
-
-      $('voiceBtn').onclick = () => {
-        if ($('voiceBtn').classList.contains('listening')) {
-          isUserStopping = true;
-          clearTimeout(speechTimeout);
-          recognition.stop();
-        } else {
-          try {
-            finalText = '';
-            recognition.start();
-          } catch (e) {
-            console.error(e);
-          }
-        }
-      };
+    // ดึงข้อความรวมทั้งหมดโดยตรงจากผลลัพธ์ ไม่ใช้การบวกต่อหาง (แก้ Bug ข้อความเบิ้ลบน Android)
+    let fullText = '';
+    for (let i = 0; i < e.results.length; i++) {
+      fullText += e.results[i][0].transcript;
     }
 
+    fullText = fullText.trim();
+    if (fullText) {
+      $('preview').textContent = fullText;
+      fillFromVoice(fullText);
+    }
+
+    // เมื่อหยุดพูดเกิน 2.5 วินาที ให้ปิดไมค์อัตโนมัติ
+    speechTimeout = setTimeout(() => {
+      if ($('voiceBtn').classList.contains('listening')) {
+        recognition.stop();
+      }
+    }, 2500);
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error === 'no-speech') return;
+    $('voiceBtn').classList.remove('listening');
+    $('voiceStatus').textContent = e.error === 'not-allowed'
+      ? 'เบราว์เซอร์ไม่อนุญาตไมโครโฟน'
+      : 'ฟังเสียงไม่สำเร็จ ลองแตะใหม่อีกครั้ง';
+  };
+
+  recognition.onend = () => {
+    clearTimeout(speechTimeout);
+    $('voiceBtn').classList.remove('listening');
+    $('voiceStatus').textContent = 'แตะเพื่อพูดบันทึกนัดหมาย';
+
+    const textToProcess = ($('preview').textContent || '').trim();
+    if (textToProcess) {
+      fillFromVoice(textToProcess);
+    }
+  };
+
+  $('voiceBtn').onclick = () => {
+    if ($('voiceBtn').classList.contains('listening')) {
+      isUserStopping = true;
+      clearTimeout(speechTimeout);
+      recognition.stop();
+    } else {
+      try {
+        $('preview').textContent = '';
+        recognition.start();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+}
     function formatSummaryDate(value) {
       if (!value) return '-';
       const parts = value.split('-');
