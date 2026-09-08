@@ -1,116 +1,846 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Repair Assistant</title>
-<style>
-  :root{--ink:#102033;--muted:#64748b;--blue:#2563eb;--blue-dark:#1d4ed8;--soft:#eff6ff;--line:#dbe4ef;--danger:#dc2626;}
-  *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif;color:var(--ink);background:linear-gradient(180deg,#0f1d38 0 190px,#eef3f9 190px 100%)}
-  .header{max-width:720px;margin:auto;padding:28px 20px 42px;color:white}
-  .eyebrow{color:#93c5fd;font-size:12px;font-weight:700;letter-spacing:.08em}
-  h1{margin:6px 0 0;font-size:28px}
-  .wrap{max-width:720px;margin:-20px auto 40px;padding:0 16px}
-  .panel{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 8px 24px #10203312}
-  h2{margin:0;font-size:20px}.sub{margin:5px 0 18px;color:var(--muted);font-size:14px}
-  .voice{display:grid;place-items:center;background:var(--soft);border:1px solid #bfdbfe;border-radius:14px;padding:18px;margin-bottom:18px;text-align:center}
-  #voiceBtn{width:78px;height:78px;border:0;border-radius:50%;background:var(--blue);color:#fff;font-size:31px;cursor:pointer;box-shadow:0 8px 18px #2563eb40}
-  #voiceBtn.listening{background:var(--danger);animation:pulse 1.2s infinite}
-  #voiceBtn:disabled{opacity:.5;cursor:not-allowed}
-  #voiceStatus{margin-top:10px;color:var(--muted);font-weight:700;font-size:14px}
-  #preview{width:100%;min-height:24px;margin-top:8px;text-align:left;font-size:14px;word-break:break-word}
-  @keyframes pulse{50%{box-shadow:0 0 0 12px #dc262600}}
-  .field{margin-bottom:13px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  label{display:block;margin-bottom:5px;color:var(--muted);font-size:13px;font-weight:700}
-  input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;color:var(--ink)}
-  input:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px #bfdbfe}
-  .save{width:100%;padding:13px;border:0;border-radius:11px;background:var(--blue);color:white;font:inherit;font-weight:700;cursor:pointer}.save:hover{background:var(--blue-dark)}
-  .save:disabled{opacity:.6;cursor:wait}.hint{margin:14px 0 0;color:var(--muted);font-size:12px;text-align:center}
-  .summary-date{color:var(--muted);font-size:12px}
-  .appointments{margin-top:16px}.appointment-list{display:grid;gap:6px;margin-top:8px}.appointment-item{display:grid;grid-template-columns:58px minmax(0,1fr) 34px;align-items:center;gap:9px;border:1px solid #e2e8f0;border-radius:10px;padding:8px 9px;background:#fff;transition:box-shadow .15s ease,transform .15s ease}.appointment-item:hover{box-shadow:0 4px 12px #10203314;transform:translateY(-1px)}.appointment-time{background:#dbeafe;border-radius:7px;color:var(--blue-dark);font-size:13px;font-weight:800;padding:6px 4px;text-align:center}.appointment-info{min-width:0}.appointment-top{display:flex;align-items:center;gap:6px;min-width:0;font-size:14px;line-height:1.25}.appointment-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.appointment-phone{color:var(--muted);font-size:12px;font-weight:500;white-space:nowrap}.appointment-meta{margin-top:3px;color:#475569;font-size:12px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.appointment-note{color:#94a3b8;font-style:italic}.appointment-call{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#dcfce7;color:#047857;text-decoration:none;font-size:15px}.appointment-call:hover{background:#bbf7d0}.appointment-group{margin-top:12px}.appointment-group h3{display:flex;align-items:center;gap:7px;margin:0;color:var(--ink);font-size:15px}.appointment-badge{padding:2px 7px;border-radius:999px;background:#dbeafe;color:var(--blue-dark);font-size:11px;font-weight:800}.appointment-group.tomorrow .appointment-badge{background:#ffedd5;color:#c2410c}.appointment-group.empty{padding:9px 10px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:13px}
-  .header-title{display:flex;align-items:end;justify-content:space-between;gap:16px}.current-datetime{margin-top:0;color:var(--muted);font-size:1.15rem;font-weight:700;text-align:right;white-space:nowrap}
-  .form-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:4px}.form-title h2{margin:0}
-  .appointment-group{margin-top:16px}.appointment-group h3{margin:0;color:var(--ink);font-size:16px}.appointment-group.empty{padding:12px;border:1px dashed var(--line);border-radius:10px;color:var(--muted)}
-  #toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:#102033;color:#fff;padding:12px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;max-width:90%;text-align:center}#toast.show{opacity:1;transform:translate(-50%,0)}
-  @media(max-width:560px){body{background:linear-gradient(180deg,#0f1d38 0 150px,#eef3f9 150px 100%)}.header{padding:22px 16px 34px}.header-title{align-items:start}.header h1{font-size:24px}.current-datetime{font-size:.9rem;white-space:normal}.wrap{margin:-16px auto 28px;padding:0 12px}.panel{padding:16px;border-radius:14px}.row{grid-template-columns:1fr}.form-title{align-items:flex-start}.form-title .current-datetime{text-align:right}.voice{padding:16px}.save{min-height:48px}.appointment-item{grid-template-columns:52px minmax(0,1fr) 32px;padding:7px 8px;gap:7px}.appointment-top{font-size:13px}.appointment-phone{font-size:11px}.appointment-meta{font-size:11px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repair Assistant</title>
+  <style>
+    :root {
+      --ink: #102033;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --soft: #eff6ff;
+      --line: #dbe4ef;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #0f1d38 0 190px, #eef3f9 190px 100%);
+    }
+
+    .header {
+      max-width: 720px;
+      margin: auto;
+      padding: 28px 20px 42px;
+      color: white;
+    }
+
+    .eyebrow {
+      color: #93c5fd;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+
+    h1 {
+      margin: 6px 0 0;
+      font-size: 28px;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: -20px auto 40px;
+      padding: 0 16px;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 8px 24px #10203312;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .sub {
+      margin: 5px 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .voice {
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      border: 1px solid #bfdbfe;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    #voiceBtn {
+      width: 78px;
+      height: 78px;
+      border: 0;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-size: 31px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px #2563eb40;
+      transition: background .2s, box-shadow .2s;
+    }
+
+    #voiceBtn.listening {
+      background: var(--danger);
+      animation: pulse 1.2s infinite;
+    }
+
+    #voiceBtn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    #voiceStatus {
+      margin-top: 10px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    #preview {
+      width: 100%;
+      min-height: 24px;
+      margin-top: 8px;
+      text-align: left;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    @keyframes pulse {
+      50% {
+        box-shadow: 0 0 0 12px #dc262600;
+      }
+    }
+
+    .field {
+      margin-bottom: 13px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font: inherit;
+      color: var(--ink);
+    }
+
+    input:focus {
+      outline: 0;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px #bfdbfe;
+    }
+
+    .save {
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 11px;
+      background: var(--blue);
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .save:hover {
+      background: var(--blue-dark);
+    }
+
+    .save:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .hint {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .summary-date {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .appointments {
+      margin-top: 16px;
+    }
+
+    .appointment-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .appointment-item {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) 34px;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 9px;
+      background: #fff;
+      transition: box-shadow .15s ease, transform .15s ease;
+    }
+
+    .appointment-item:hover {
+      box-shadow: 0 4px 12px #10203314;
+      transform: translateY(-1px);
+    }
+
+    .appointment-time {
+      background: #dbeafe;
+      border-radius: 7px;
+      color: var(--blue-dark);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 6px 4px;
+      text-align: center;
+    }
+
+    .appointment-info {
+      min-width: 0;
+    }
+
+    .appointment-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .appointment-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .appointment-phone {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .appointment-meta {
+      margin-top: 3px;
+      color: #475569;
+      font-size: 12px;
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .appointment-note {
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .appointment-call {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #dcfce7;
+      color: #047857;
+      text-decoration: none;
+      font-size: 15px;
+    }
+
+    .appointment-call:hover {
+      background: #bbf7d0;
+    }
+
+    .appointment-group {
+      margin-top: 16px;
+    }
+
+    .appointment-group h3 {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0;
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .appointment-badge {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: var(--blue-dark);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .appointment-group.tomorrow .appointment-badge {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .appointment-group.empty {
+      padding: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .form-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 4px;
+    }
+
+    .form-title h2 {
+      margin: 0;
+    }
+
+    .current-datetime {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translate(-50%, 20px);
+      background: #102033;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 560px) {
+      body {
+        background: linear-gradient(180deg, #0f1d38 0 150px, #eef3f9 150px 100%);
+      }
+
+      .header {
+        padding: 22px 16px 34px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .wrap {
+        margin: -16px auto 28px;
+        padding: 0 12px;
+      }
+
+      .panel {
+        padding: 16px;
+        border-radius: 14px;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .form-title {
+        align-items: flex-start;
+      }
+
+      .current-datetime {
+        font-size: .9rem;
+        white-space: normal;
+        text-align: right;
+      }
+
+      .voice {
+        padding: 16px;
+      }
+
+      .save {
+        min-height: 48px;
+      }
+
+      .appointment-item {
+        grid-template-columns: 52px minmax(0, 1fr) 32px;
+        padding: 7px 8px;
+        gap: 7px;
+      }
+
+      .appointment-top {
+        font-size: 13px;
+      }
+
+      .appointment-phone,
+      .appointment-meta {
+        font-size: 11px;
+      }
+    }
+  </style>
 </head>
 <body>
-<header class="header"><div class="eyebrow">CHIANG MAI · LAPTOP &amp; PC SERVICE</div><div class="header-title"><h1>🔧 Repair Assistant</h1></div></header>
-<main class="wrap">
-<section class="panel">
-  <div class="form-title"><h2>เพิ่มนัดหมายใหม่</h2><div class="current-datetime" id="currentDateTime">กำลังโหลดวันเวลา...</div></div>
-  <p class="sub">พูดภาษาไทยหรือกรอกข้อมูลด้วยตัวเอง</p>
-  <div class="voice">
-    <button id="voiceBtn" type="button" aria-label="เริ่มพูดนัดหมาย">🎙️</button>
-    <div id="voiceStatus">แตะเพื่อพูดบันทึกนัดหมาย</div>
-    <div id="preview" aria-live="polite"></div>
-  </div>
-  <div class="field"><label for="name">ชื่อลูกค้า</label><input id="name" placeholder="เช่น คุณสมชาย"></div>
-  <div class="row">
-    <div class="field"><label for="phone">เบอร์โทร</label><input id="phone" placeholder="08x-xxx-xxxx" inputmode="tel"></div>
-    <div class="field"><label for="date">วันที่</label><input id="date" placeholder="เช่น 08/09/2569 หรือ 2026-09-08" inputmode="numeric"></div>
-  </div>
-  <div class="row">
-    <div class="field"><label for="time">เวลา</label><input id="time" placeholder="เช่น 14:00" inputmode="numeric"></div>
-    <div class="field"><label for="job">งาน</label><input id="job" placeholder="เช่น เปลี่ยนจอ"></div>
-  </div>
-  <div class="field"><label for="note">หมายเหตุ</label><input id="note" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></div>
-  <button class="save" id="saveBtn" type="button">💾 บันทึกนัดหมาย</button>
-  <p class="hint">หน้านี้ใช้ไมโครโฟนของเบราว์เซอร์โดยตรง และบันทึกข้อมูลลง Google Sheet</p>
-</section>
-<section class="panel appointments">
-  <h2>รายการนัดหมาย</h2>
-  <p class="sub">นัดวันนี้และพรุ่งนี้</p>
-  <div class="appointment-list" id="appointmentList"><div class="summary-date">กำลังโหลดรายการ...</div></div>
-</section>
-</main>
-<div id="toast"></div><iframe name="saveTarget" id="saveTarget" hidden></iframe>
-<script>
-const GAS_ENDPOINT='https://script.google.com/macros/s/AKfycbwp3NYz2WONBWBmtZoKT3hizu_hsqPik6_pYdKAfRoTP2NAJLq73tr2whgqGLPrLXSg/exec';
-let recognition=null, finalText='';
-let isUserStopping=false;
-let speechTimeout=null;
-const $=id=>document.getElementById(id);
-function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),3000)}
-function dateString(date){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0')}
-function phoneFrom(text){const m=text.match(/(?:เบอร์โทร|เบอร์|โทรศัพท์)\s*[:：]?\s*([0-9๐-๙][0-9๐-๙\-\s]{8,}[0-9๐-๙])/i);if(!m)return'';return m[1].replace(/[๐-๙]/g,d=>'๐๑๒๓๔๕๖๗๘๙'.indexOf(d)).replace(/[\s-]/g,'')}
-function timeFrom(text){const direct=text.match(/(?:เวลา\s*)?([01]?\d|2[0-3])\s*[:.]\s*([0-5]\d)/i);if(direct)return String(direct[1]).padStart(2,'0')+':'+direct[2];const map={'บ่ายโมง':13,'บ่ายสอง':14,'บ่ายสาม':15,'สี่โมงเย็น':16,'ห้าโมงเย็น':17,'หกโมงเย็น':18,'เก้าโมงเช้า':9,'สิบโมงเช้า':10,'สิบเอ็ดโมงเช้า':11,'เที่ยง':12};for(const key in map)if(text.includes(key))return String(map[key]).padStart(2,'0')+':00';const h=text.match(/(\d{1,2})\s*โมง/);return h?String(parseInt(h[1],10)+(text.includes('บ่าย')?12:0)).padStart(2,'0')+':00':''}
-function dateFrom(text){const now=new Date();if(text.includes('พรุ่งนี้')){now.setDate(now.getDate()+1);return dateString(now)}if(text.includes('วันนี้'))return dateString(now);const months={'มกราคม':1,'กุมภาพันธ์':2,'มีนาคม':3,'เมษายน':4,'พฤษภาคม':5,'มิถุนายน':6,'กรกฎาคม':7,'สิงหาคม':8,'กันยายน':9,'ตุลาคม':10,'พฤศจิกายน':11,'ธันวาคม':12};const m=text.match(new RegExp('(\\d{1,2})\\s*(?:เดือน)?\\s*('+Object.keys(months).join('|')+')(?:\\s*(?:ปี)?\\s*(\\d{2,4}))?'));if(!m)return'';let year=m[3]?parseInt(m[3],10):now.getFullYear();if(year<100)year+=2500;if(year>=2400)year-=543;return year+'-'+String(months[m[2]]).padStart(2,'0')+'-'+m[1].padStart(2,'0')}
-function normalizeDateInput(value){const raw=String(value||'').trim();let m=raw.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);if(m){let year=Number(m[1]);if(year>=2400)year-=543;return year+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0')}m=raw.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);if(!m)return'';let year=Number(m[3]);if(year<100)year+=2500;if(year>=2400)year-=543;return year+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0')}
-function toGregorianYear(year){let value=Number(year);if(value<100)value+=2500;if(value>=2400)value-=543;return value}
-function relativeDays(text){const words={'หนึ่ง':1,'สอง':2,'สาม':3,'สี่':4,'ห้า':5};const match=text.match(/อีก\s*(\d+|หนึ่ง|สอง|สาม|สี่|ห้า)\s*วัน/i);return match?(words[match[1]]||Number(match[1])):0}
-function dateFrom(text){const now=new Date();const days=relativeDays(text);if(days){now.setDate(now.getDate()+days);return dateString(now)}if(text.includes('พรุ่งนี้')){now.setDate(now.getDate()+1);return dateString(now)}if(text.includes('วันนี้'))return dateString(now);const numeric=text.match(/(?:วันที่\s*)?(\d{1,2})\s*(?:เดือน|[\/-])\s*(\d{1,2})(?:\s*(?:ปี)?\s*(\d{2,4}))?/i);if(numeric){const year=toGregorianYear(numeric[3]||now.getFullYear());return year+'-'+String(numeric[2]).padStart(2,'0')+'-'+String(numeric[1]).padStart(2,'0')}const months={'มกราคม':1,'กุมภาพันธ์':2,'มีนาคม':3,'เมษายน':4,'พฤษภาคม':5,'มิถุนายน':6,'กรกฎาคม':7,'สิงหาคม':8,'กันยายน':9,'ตุลาคม':10,'พฤศจิกายน':11,'ธันวาคม':12};const m=text.match(new RegExp('(\\d{1,2})\\s*(?:เดือน)?\\s*('+Object.keys(months).join('|')+')(?:\\s*(?:ปี)?\\s*(\\d{2,4}))?'));if(!m)return'';const year=toGregorianYear(m[3]||now.getFullYear());return year+'-'+String(months[m[2]]).padStart(2,'0')+'-'+m[1].padStart(2,'0')}
-function normalizeDateInput(value){const raw=String(value||'').trim();const relative=relativeDays(raw);if(relative){const date=new Date();date.setDate(date.getDate()+relative);return dateString(date)}if(raw.includes('พรุ่งนี้')){const date=new Date();date.setDate(date.getDate()+1);return dateString(date)}if(raw.includes('วันนี้'))return dateString(new Date());let m=raw.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);if(m)return toGregorianYear(m[1])+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0');m=raw.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);if(m)return toGregorianYear(m[3])+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');m=raw.match(/^(?:วันที่\s*)?(\d{1,2})\s*เดือน\s*(\d{1,2})\s*(?:ปี\s*)?(\d{2,4})$/i);if(m)return toGregorianYear(m[3])+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');return dateFrom(raw)}
-function normalizeThaiDateWords(text){let value=String(text||'');const words={'ศูนย์':'0','หนึ่ง':'1','สอง':'2','สาม':'3','สี่':'4','ห้า':'5','หก':'6','เจ็ด':'7','แปด':'8','เก้า':'9'};Object.keys(words).sort((a,b)=>b.length-a.length).forEach(word=>{value=value.split(word).join(words[word])});return value.replace(/[๐-๙]/g,function(d){return '๐๑๒๓๔๕๖๗๘๙'.indexOf(d)})}
-function validDateParts(day, month){return day >= 1 && day <= 31 && month >= 1 && month <= 12}
-function parseAppointmentDate(value){
-  const source=normalizeThaiDateWords(String(value||'').replace(/\s+/g,' ').trim());
-  const isoDate=source.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if(isoDate&&validDateParts(Number(isoDate[3]),Number(isoDate[2])))return toGregorianYear(isoDate[1])+'-'+String(isoDate[2]).padStart(2,'0')+'-'+String(isoDate[3]).padStart(2,'0');
-  const now=new Date();
-  const days=relativeDays(source);
-  if(days){now.setDate(now.getDate()+days);return dateString(now)}
-  if(source.includes('พรุ่งนี้')){now.setDate(now.getDate()+1);return dateString(now)}
-  if(source.includes('วันนี้'))return dateString(now);
-  const numericDatePattern=/(?:วันที่\s*)?(\d{1,2})\s*(?:เดือน\s*|[\/-])(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/gi;
-  let match;
-  while((match=numericDatePattern.exec(source))!==null){if(validDateParts(Number(match[1]),Number(match[2])))return toGregorianYear(match[3]||now.getFullYear())+'-'+String(match[2]).padStart(2,'0')+'-'+String(match[1]).padStart(2,'0')}
-  const months={'มกราคม':1,'กุมภาพันธ์':2,'มีนาคม':3,'เมษายน':4,'พฤษภาคม':5,'มิถุนายน':6,'กรกฎาคม':7,'สิงหาคม':8,'กันยายน':9,'ตุลาคม':10,'พฤศจิกายน':11,'ธันวาคม':12};
-  match=source.match(new RegExp('(\\d{1,2})\\s*(?:เดือน)?\\s*('+Object.keys(months).join('|')+')(?:\\s*(?:ปี)?\\s*(\\d{2,4}))?'));
-  if(!match||!validDateParts(Number(match[1]),months[match[2]]))return '';
-  return toGregorianYear(match[3]||now.getFullYear())+'-'+String(months[match[2]]).padStart(2,'0')+'-'+String(match[1]).padStart(2,'0');
-}
-function dateFrom(text){const source=normalizeThaiDateWords(text);const now=new Date();const days=relativeDays(source);if(days){now.setDate(now.getDate()+days);return dateString(now)}if(source.includes('พรุ่งนี้')){now.setDate(now.getDate()+1);return dateString(now)}if(source.includes('วันนี้'))return dateString(now);const numeric=source.match(/(?:วันที่\s*)?(\d{1,2})\s*(?:เดือน|[\/-])\s*(\d{1,2})(?:\s*(?:ปี)?\s*(\d{2,4}))?/i);if(numeric&&validDateParts(Number(numeric[1]),Number(numeric[2]))){const year=toGregorianYear(numeric[3]||now.getFullYear());return year+'-'+String(numeric[2]).padStart(2,'0')+'-'+String(numeric[1]).padStart(2,'0')}const months={'มกราคม':1,'กุมภาพันธ์':2,'มีนาคม':3,'เมษายน':4,'พฤษภาคม':5,'มิถุนายน':6,'กรกฎาคม':7,'สิงหาคม':8,'กันยายน':9,'ตุลาคม':10,'พฤศจิกายน':11,'ธันวาคม':12};const m=source.match(new RegExp('(\\d{1,2})\\s*(?:เดือน)?\\s*('+Object.keys(months).join('|')+')(?:\\s*(?:ปี)?\\s*(\\d{2,4}))?'));if(!m||!validDateParts(Number(m[1]),months[m[2]]))return'';const year=toGregorianYear(m[3]||now.getFullYear());return year+'-'+String(months[m[2]]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0')}
-function normalizeDateInput(value){const raw=normalizeThaiDateWords(String(value||'').trim());const relative=relativeDays(raw);if(relative){const date=new Date();date.setDate(date.getDate()+relative);return dateString(date)}if(raw.includes('พรุ่งนี้')){const date=new Date();date.setDate(date.getDate()+1);return dateString(date)}if(raw.includes('วันนี้'))return dateString(new Date());let m=raw.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);if(m&&validDateParts(Number(m[3]),Number(m[2])))return toGregorianYear(m[1])+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0');m=raw.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);if(m&&validDateParts(Number(m[1]),Number(m[2])))return toGregorianYear(m[3])+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');m=raw.match(/^(?:วันที่\s*)?(\d{1,2})\s*เดือน\s*(\d{1,2})\s*(?:ปี\s*)?(\d{2,4})$/i);if(m&&validDateParts(Number(m[1]),Number(m[2])))return toGregorianYear(m[3])+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');return dateFrom(raw)}
-function fillFromVoice(text){const named=text.match(/((?:คุณ|พี่|ช่าง|น้อง)\s*[^,\s]+?)(?=\s*(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ|$))/i);const fallback=text.match(/(?:ชื่อลูกค้า|ลูกค้า|นัดคุณ|นัด)\s*([^,\n]+?)(?=\s*(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ|$))/i);const hasDetails=/(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ)/i.test(text);if(named)$('name').value=named[1].trim();else if(fallback)$('name').value=fallback[1].trim();else if(!hasDetails&&text.trim().length<=40)$('name').value=text.trim();const phone=phoneFrom(text),date=parseAppointmentDate(text),time=timeFrom(text);if(phone)$('phone').value=phone;if(date)$('date').value=date;if(time)$('time').value=time;const job=text.match(/(?:อาการ|งาน|ทำ|ซ่อม|เปลี่ยน)\s*([^,\n]+?)(?=\s*(?:หมายเหตุ|$))/i);if(job)$('job').value=job[1].trim();const note=text.match(/หมายเหตุ\s*(.+)$/i);if(note)$('note').value=note[1].trim()}
-function updateCurrentDateTime(){const now=new Date();$('currentDateTime').textContent='📅 '+now.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'short',day:'numeric'})+' | 🕒 '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' น.'}
-function setupVoice(){const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Recognition){$('voiceBtn').disabled=true;$('voiceStatus').textContent='เบราว์เซอร์นี้ไม่รองรับ Speech Recognition';return}recognition=new Recognition();recognition.lang='th-TH';recognition.continuous=true;recognition.interimResults=true;recognition.onstart=()=>{isUserStopping=false;$('voiceBtn').classList.add('listening');$('voiceStatus').textContent='🔴 กำลังฟัง... พูดชื่อ วัน เวลา งาน ได้ยาวๆ เลยครับ';$('preview').textContent='';finalText=''};recognition.onresult=e=>{let interimTranscript='';clearTimeout(speechTimeout);for(let i=e.resultIndex;i<e.results.length;i++){const piece=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=piece+' ';else interimTranscript+=piece}const currentCombined=(finalText+interimTranscript).trim();if(currentCombined){$('preview').textContent=currentCombined;fillFromVoice(currentCombined)}speechTimeout=setTimeout(()=>{if($('voiceBtn').classList.contains('listening'))recognition.stop()},2500)};recognition.onerror=e=>{if(e.error==='no-speech')return;$('voiceBtn').classList.remove('listening');$('voiceStatus').textContent=e.error==='not-allowed'?'เบราว์เซอร์ไม่อนุญาตไมโครโฟน':'ฟังเสียงไม่สำเร็จ ลองแตะใหม่อีกครั้ง'};recognition.onend=()=>{clearTimeout(speechTimeout);$('voiceBtn').classList.remove('listening');$('voiceStatus').textContent='แตะเพื่อพูดบันทึกนัดหมาย';const textToProcess=($('preview').textContent||finalText).trim();if(textToProcess)fillFromVoice(textToProcess)};$('voiceBtn').onclick=()=>{if($('voiceBtn').classList.contains('listening')){isUserStopping=true;clearTimeout(speechTimeout);recognition.stop()}else{try{finalText='';recognition.start()}catch(e){console.error(e)}}}}
-function formatSummaryDate(value){if(!value)return'-';const parts=value.split('-');return parts.length===3?parts[2]+'/'+parts[1]+'/'+parts[0]:value}
-function renderAppointments(items,todayKey,tomorrowKey){const list=$('appointmentList');const todayItems=(items||[]).filter(item=>item.date===todayKey);const tomorrowItems=(items||[]).filter(item=>item.date===tomorrowKey);function cards(entries){return entries.length?entries.map(function(item){const phone=String(item.phone||'').replace(/[^0-9+]/g,'');return '<div class="appointment-item"><div class="appointment-time">'+escapeHtml(item.time)+'</div><div class="appointment-info"><div class="appointment-top"><strong class="appointment-name">'+escapeHtml(item.name)+'</strong><span class="appointment-phone">📞 '+escapeHtml(item.phone)+'</span></div><div class="appointment-meta">🔧 '+escapeHtml(item.job)+(item.note?' <span class="appointment-note">· '+escapeHtml(item.note)+'</span>':'')+'</div></div><a class="appointment-call" href="tel:'+escapeHtml(phone)+'" aria-label="โทรหา '+escapeHtml(item.name)+'" title="โทรหา '+escapeHtml(item.name)+'">📞</a></div>'}).join(''):'<div class="appointment-group empty">✅ ยังไม่มีนัดหมาย</div>'}list.innerHTML='<div class="appointment-group"><h3>📅 นัดหมายวันนี้ <span class="appointment-badge">'+todayItems.length+' งาน</span></h3><div class="appointment-list">'+cards(todayItems)+'</div></div><div class="appointment-group tomorrow"><h3>📅 นัดหมายพรุ่งนี้ <span class="appointment-badge">'+tomorrowItems.length+' งาน</span></h3><div class="appointment-list">'+cards(tomorrowItems)+'</div></div>'}
-function escapeHtml(value){return String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
-function loadSummary(){const callback='appointmentSummary_'+Date.now();const script=document.createElement('script');window[callback]=function(data){const todayCount=$('todayCount');const tomorrowCount=$('tomorrowCount');const todayDate=$('todayDate');const tomorrowDate=$('tomorrowDate');if(todayCount)todayCount.textContent=data.today||0;if(tomorrowCount)tomorrowCount.textContent=data.tomorrow||0;if(todayDate)todayDate.textContent=formatSummaryDate(data.date);if(tomorrowDate)tomorrowDate.textContent=formatSummaryDate(data.tomorrowDate);renderAppointments(data.appointments,data.date,data.tomorrowDate);script.remove();delete window[callback]};script.onerror=function(){const list=$('appointmentList');if(list)list.innerHTML='<div class="summary-date">โหลดรายการไม่สำเร็จ</div>';script.remove();delete window[callback]};script.src=GAS_ENDPOINT+'?action=summary&callback='+callback;document.body.appendChild(script)}
-function save(){const data={name:$('name').value.trim(),phone:$('phone').value.trim(),date:parseAppointmentDate($('date').value),time:$('time').value.trim(),job:$('job').value.trim(),note:$('note').value.trim()};if(!data.name||!data.date||!data.time){toast('กรุณากรอกชื่อ วันที่ และเวลาให้ครบ เช่น 08/09/2569');return}const button=$('saveBtn');button.disabled=true;button.textContent='กำลังบันทึก...';const query=new URLSearchParams(data).toString();$('saveTarget').onload=()=>{window.location.reload()};$('saveTarget').src=GAS_ENDPOINT+'?'+query}
-$('saveBtn').onclick=save;setupVoice();loadSummary();updateCurrentDateTime();setInterval(updateCurrentDateTime,1000);
-</script></body></html>
+
+  <header class="header">
+    <div class="eyebrow">CHIANG MAI · LAPTOP &amp; PC SERVICE</div>
+    <div class="header-title">
+      <h1>🔧 Repair Assistant</h1>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <div class="form-title">
+        <h2>เพิ่มนัดหมายใหม่</h2>
+        <div class="current-datetime" id="currentDateTime">กำลังโหลดวันเวลา...</div>
+      </div>
+      <p class="sub">พูดภาษาไทยหรือกรอกข้อมูลด้วยตัวเอง</p>
+
+      <div class="voice">
+        <button id="voiceBtn" type="button" aria-label="เริ่มพูดนัดหมาย">🎙️</button>
+        <div id="voiceStatus">แตะเพื่อพูดบันทึกนัดหมาย</div>
+        <div id="preview" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <label for="name">ชื่อลูกค้า</label>
+        <input id="name" placeholder="เช่น คุณสมชาย">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="phone">เบอร์โทร</label>
+          <input id="phone" placeholder="08x-xxx-xxxx" inputmode="tel">
+        </div>
+        <div class="field">
+          <label for="date">วันที่</label>
+          <input id="date" placeholder="เช่น 08/09/2569 หรือ 2026-09-08" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="time">เวลา</label>
+          <input id="time" placeholder="เช่น 14:00" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="job">งาน</label>
+          <input id="job" placeholder="เช่น เปลี่ยนจอ">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="note">หมายเหตุ</label>
+        <input id="note" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)">
+      </div>
+
+      <button class="save" id="saveBtn" type="button">💾 บันทึกนัดหมาย</button>
+      <p class="hint">หน้านี้ใช้ไมโครโฟนของเบราว์เซอร์โดยตรง และบันทึกข้อมูลลง Google Sheet</p>
+    </section>
+
+    <section class="panel appointments">
+      <h2>รายการนัดหมาย</h2>
+      <p class="sub">นัดวันนี้และพรุ่งนี้</p>
+      <div class="appointment-list" id="appointmentList">
+        <div class="summary-date">กำลังโหลดรายการ...</div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+  <iframe name="saveTarget" id="saveTarget" hidden></iframe>
+
+  <script>
+    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwp3NYz2WONBWBmtZoKT3hizu_hsqPik6_pYdKAfRoTP2NAJLq73tr2whgqGLPrLXSg/exec';
+    
+    let recognition = null;
+    let finalText = '';
+    let isUserStopping = false;
+    let speechTimeout = null;
+
+    const $ = id => document.getElementById(id);
+
+    function toast(message) {
+      const el = $('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    function dateString(date) {
+      return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    }
+
+    function phoneFrom(text) {
+      const m = text.match(/(?:เบอร์โทร|เบอร์|โทรศัพท์)\s*[:：]?\s*([0-9๐-๙][0-9๐-๙\-\s]{8,}[0-9๐-๙])/i);
+      if (!m) return '';
+      return m[1].replace(/[๐-๙]/g, d => '๐๑๒๓๔๕๖๗๘๙'.indexOf(d)).replace(/[\s-]/g, '');
+    }
+
+    function timeFrom(text) {
+      const direct = text.match(/(?:เวลา\s*)?([01]?\d|2[0-3])\s*[:.]\s*([0-5]\d)/i);
+      if (direct) return String(direct[1]).padStart(2, '0') + ':' + direct[2];
+
+      const map = {
+        'บ่ายโมง': 13, 'บ่ายสอง': 14, 'บ่ายสาม': 15,
+        'สี่โมงเย็น': 16, 'ห้าโมงเย็น': 17, 'หกโมงเย็น': 18,
+        'เก้าโมงเช้า': 9, 'สิบโมงเช้า': 10, 'สิบเอ็ดโมงเช้า': 11, 'เที่ยง': 12
+      };
+      for (const key in map) {
+        if (text.includes(key)) return String(map[key]).padStart(2, '0') + ':00';
+      }
+
+      const h = text.match(/(\d{1,2})\s*โมง/);
+      return h ? String(parseInt(h[1], 10) + (text.includes('บ่าย') ? 12 : 0)).padStart(2, '0') + ':00' : '';
+    }
+
+    function toGregorianYear(year) {
+      let value = Number(year);
+      if (value < 100) value += 2500;
+      if (value >= 2400) value -= 543;
+      return value;
+    }
+
+    function relativeDays(text) {
+      const words = { 'หนึ่ง': 1, 'สอง': 2, 'สาม': 3, 'สี่': 4, 'ห้า': 5 };
+      const match = text.match(/อีก\s*(\d+|หนึ่ง|สอง|สาม|สี่|ห้า)\s*วัน/i);
+      return match ? (words[match[1]] || Number(match[1])) : 0;
+    }
+
+    function normalizeThaiDateWords(text) {
+      let value = String(text || '');
+      const words = {
+        'ศูนย์': '0', 'หนึ่ง': '1', 'สอง': '2', 'สาม': '3', 'สี่': '4',
+        'ห้า': '5', 'หก': '6', 'เจ็ด': '7', 'แปด': '8', 'เก้า': '9'
+      };
+      Object.keys(words).sort((a, b) => b.length - a.length).forEach(word => {
+        value = value.split(word).join(words[word]);
+      });
+      return value.replace(/[๐-๙]/g, d => '๐๑๒๓๔๕๖๗๘๙'.indexOf(d));
+    }
+
+    function validDateParts(day, month) {
+      return day >= 1 && day <= 31 && month >= 1 && month <= 12;
+    }
+
+    function parseAppointmentDate(value) {
+      const source = normalizeThaiDateWords(String(value || '').replace(/\s+/g, ' ').trim());
+      const isoDate = source.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (isoDate && validDateParts(Number(isoDate[3]), Number(isoDate[2]))) {
+        return toGregorianYear(isoDate[1]) + '-' + String(isoDate[2]).padStart(2, '0') + '-' + String(isoDate[3]).padStart(2, '0');
+      }
+
+      const now = new Date();
+      const days = relativeDays(source);
+      if (days) {
+        now.setDate(now.getDate() + days);
+        return dateString(now);
+      }
+      if (source.includes('พรุ่งนี้')) {
+        now.setDate(now.getDate() + 1);
+        return dateString(now);
+      }
+      if (source.includes('วันนี้')) return dateString(now);
+
+      const numericDatePattern = /(?:วันที่\s*)?(\d{1,2})\s*(?:เดือน\s*|[\/-])(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/gi;
+      let match;
+      while ((match = numericDatePattern.exec(source)) !== null) {
+        if (validDateParts(Number(match[1]), Number(match[2]))) {
+          return toGregorianYear(match[3] || now.getFullYear()) + '-' + String(match[2]).padStart(2, '0') + '-' + String(match[1]).padStart(2, '0');
+        }
+      }
+
+      const months = {
+        'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
+        'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12
+      };
+      match = source.match(new RegExp('(\\d{1,2})\\s*(?:เดือน)?\\s*(' + Object.keys(months).join('|') + ')(?:\\s*(?:ปี)?\\s*(\\d{2,4}))?'));
+      if (!match || !validDateParts(Number(match[1]), months[match[2]])) return '';
+      return toGregorianYear(match[3] || now.getFullYear()) + '-' + String(months[match[2]]).padStart(2, '0') + '-' + String(match[1]).padStart(2, '0');
+    }
+
+    function fillFromVoice(text) {
+      // 1. สกัดชื่อลูกค้า
+      const named = text.match(/((?:คุณ|พี่|ช่าง|น้อง)\s*[^,\s]+?)(?=\s*(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ|$))/i);
+      const fallback = text.match(/(?:ชื่อลูกค้า|ลูกค้า|นัดคุณ|นัด)\s*([^,\n]+?)(?=\s*(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ|$))/i);
+      const hasDetails = /(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ)/i.test(text);
+
+      if (named) $('name').value = named[1].trim();
+      else if (fallback) $('name').value = fallback[1].trim();
+      else if (!hasDetails && text.trim().length <= 40) $('name').value = text.trim();
+
+      // 2. สกัดเบอร์โทร, วันที่, เวลา
+      const phone = phoneFrom(text);
+      const date = parseAppointmentDate(text);
+      const time = timeFrom(text);
+
+      if (phone) $('phone').value = phone;
+      if (date) $('date').value = date;
+      if (time) $('time').value = time;
+
+      // 3. สกัดงานซ่อม
+      const job = text.match(/(?:อาการ|งาน|ทำ|ซ่อม|เปลี่ยน)\s*([^,\n]+?)(?=\s*(?:หมายเหตุ|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|เบอร์|$))/i);
+      if (job) $('job').value = job[1].trim();
+
+      // 4. สกัดหมายเหตุ (กรองไม่ให้มีวันที่/เวลา/เบอร์โทรปนเข้าไป)
+      const noteMatch = text.match(/หมายเหตุ\s*([^,\n]+?)(?=\s*(?:วันที่\s*\d|วันพรุ่งนี้|พรุ่งนี้|เวลา|เบอร์|โทรศัพท์|$))/i);
+      if (noteMatch) {
+        let cleanNote = noteMatch[1].trim();
+        cleanNote = cleanNote.replace(/(?:วันที่\s*)?\d{1,2}\s*(?:เดือน)?\s*(?:มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม|\d{1,2}|[\/-])\s*(?:ปี)?\s*(?:\d{2,4})?/gi, '').trim();
+        $('note').value = cleanNote;
+      }
+    }
+
+    function updateCurrentDateTime() {
+      const now = new Date();
+      $('currentDateTime').textContent = '📅 ' +
+        now.toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }) +
+        ' | 🕒 ' +
+        now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+    }
+
+    function setupVoice() {
+      const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Recognition) {
+        $('voiceBtn').disabled = true;
+        $('voiceStatus').textContent = 'เบราว์เซอร์นี้ไม่รองรับ Speech Recognition';
+        return;
+      }
+
+      recognition = new Recognition();
+      recognition.lang = 'th-TH';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isUserStopping = false;
+        $('voiceBtn').classList.add('listening');
+        $('voiceStatus').textContent = '🔴 กำลังฟัง... พูดชื่อ วัน เวลา งาน ได้ยาวๆ เลยครับ';
+        $('preview').textContent = '';
+        finalText = '';
+      };
+
+      recognition.onresult = e => {
+        let interimTranscript = '';
+        clearTimeout(speechTimeout);
+
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const piece = e.results[i][0].transcript;
+          if (e.results[i].isFinal) {
+            finalText += piece + ' ';
+          } else {
+            interimTranscript += piece;
+          }
+        }
+
+        const currentCombined = (finalText + interimTranscript).trim();
+        if (currentCombined) {
+          $('preview').textContent = currentCombined;
+          fillFromVoice(currentCombined);
+        }
+
+        // เมื่อหยุดพูดเกิน 2.5 วินาที ให้ปิดไมค์อัตโนมัติ
+        speechTimeout = setTimeout(() => {
+          if ($('voiceBtn').classList.contains('listening')) {
+            recognition.stop();
+          }
+        }, 2500);
+      };
+
+      recognition.onerror = e => {
+        if (e.error === 'no-speech') return;
+        $('voiceBtn').classList.remove('listening');
+        $('voiceStatus').textContent = e.error === 'not-allowed'
+          ? 'เบราว์เซอร์ไม่อนุญาตไมโครโฟน'
+          : 'ฟังเสียงไม่สำเร็จ ลองแตะใหม่อีกครั้ง';
+      };
+
+      recognition.onend = () => {
+        clearTimeout(speechTimeout);
+        $('voiceBtn').classList.remove('listening');
+        $('voiceStatus').textContent = 'แตะเพื่อพูดบันทึกนัดหมาย';
+
+        const textToProcess = ($('preview').textContent || finalText).trim();
+        if (textToProcess) {
+          fillFromVoice(textToProcess);
+        }
+      };
+
+      $('voiceBtn').onclick = () => {
+        if ($('voiceBtn').classList.contains('listening')) {
+          isUserStopping = true;
+          clearTimeout(speechTimeout);
+          recognition.stop();
+        } else {
+          try {
+            finalText = '';
+            recognition.start();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      };
+    }
+
+    function formatSummaryDate(value) {
+      if (!value) return '-';
+      const parts = value.split('-');
+      return parts.length === 3 ? parts[2] + '/' + parts[1] + '/' + parts[0] : value;
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function renderAppointments(items, todayKey, tomorrowKey) {
+      const list = $('appointmentList');
+      const todayItems = (items || []).filter(item => item.date === todayKey);
+      const tomorrowItems = (items || []).filter(item => item.date === tomorrowKey);
+
+      function cards(entries) {
+        return entries.length ? entries.map(function(item) {
+          const phone = String(item.phone || '').replace(/[^0-9+]/g, '');
+          return '<div class="appointment-item">' +
+            '<div class="appointment-time">' + escapeHtml(item.time) + '</div>' +
+            '<div class="appointment-info">' +
+              '<div class="appointment-top">' +
+                '<strong class="appointment-name">' + escapeHtml(item.name) + '</strong>' +
+                '<span class="appointment-phone">📞 ' + escapeHtml(item.phone) + '</span>' +
+              '</div>' +
+              '<div class="appointment-meta">🔧 ' + escapeHtml(item.job) +
+                (item.note ? ' <span class="appointment-note">· ' + escapeHtml(item.note) + '</span>' : '') +
+              '</div>' +
+            '</div>' +
+            '<a class="appointment-call" href="tel:' + escapeHtml(phone) + '" aria-label="โทรหา ' + escapeHtml(item.name) + '" title="โทรหา ' + escapeHtml(item.name) + '">📞</a>' +
+          '</div>';
+        }).join('') : '<div class="appointment-group empty">✅ ยังไม่มีนัดหมาย</div>';
+      }
+
+      list.innerHTML =
+        '<div class="appointment-group">' +
+          '<h3>📅 นัดหมายวันนี้ <span class="appointment-badge">' + todayItems.length + ' งาน</span></h3>' +
+          '<div class="appointment-list">' + cards(todayItems) + '</div>' +
+        '</div>' +
+        '<div class="appointment-group tomorrow">' +
+          '<h3>📅 นัดหมายพรุ่งนี้ <span class="appointment-badge">' + tomorrowItems.length + ' งาน</span></h3>' +
+          '<div class="appointment-list">' + cards(tomorrowItems) + '</div>' +
+        '</div>';
+    }
+
+    function loadSummary() {
+      const callback = 'appointmentSummary_' + Date.now();
+      const script = document.createElement('script');
+
+      window[callback] = function(data) {
+        renderAppointments(data.appointments, data.date, data.tomorrowDate);
+        script.remove();
+        delete window[callback];
+      };
+
+      script.onerror = function() {
+        const list = $('appointmentList');
+        if (list) list.innerHTML = '<div class="summary-date">โหลดรายการไม่สำเร็จ</div>';
+        script.remove();
+        delete window[callback];
+      };
+
+      script.src = GAS_ENDPOINT + '?action=summary&callback=' + callback;
+      document.body.appendChild(script);
+    }
+
+    function save() {
+      const data = {
+        name: $('name').value.trim(),
+        phone: $('phone').value.trim(),
+        date: parseAppointmentDate($('date').value),
+        time: $('time').value.trim(),
+        job: $('job').value.trim(),
+        note: $('note').value.trim()
+      };
+
+      if (!data.name || !data.date || !data.time) {
+        toast('กรุณากรอกชื่อ วันที่ และเวลาให้ครบ เช่น 08/09/2569');
+        return;
+      }
+
+      const button = $('saveBtn');
+      button.disabled = true;
+      button.textContent = 'กำลังบันทึก...';
+
+      const query = new URLSearchParams(data).toString();
+      $('saveTarget').onload = () => {
+        window.location.reload();
+      };
+      $('saveTarget').src = GAS_ENDPOINT + '?' + query;
+    }
+
+    // กำหนด Event listeners และรันระบบเริ่มต้น
+    $('saveBtn').onclick = save;
+    setupVoice();
+    loadSummary();
+    updateCurrentDateTime();
+    setInterval(updateCurrentDateTime, 1000);
+  </script>
+</body>
+</html>
