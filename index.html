@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Repair Assistant</title>
-  <!-- SweetAlert2 สำหรับหน้าต่างแจ้งเตือนและเมนูเลื่อนนัด -->
+  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     :root {
@@ -180,6 +180,80 @@
       opacity: 0; pointer-events: none; transition: .2s; max-width: 90%; text-align: center; z-index: 99;
     }
     #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    /* ========================================
+       PREMIUM SWEETALERT2 THEME
+       ======================================== */
+    .swal2-popup.premium-swal {
+      border-radius: 24px !important;
+      padding: 24px !important;
+      background: #ffffff !important;
+      box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(226, 232, 240, 0.8) !important;
+      font-family: inherit !important;
+    }
+    .premium-title {
+      font-size: 20px !important;
+      font-weight: 800 !important;
+      color: #0f172a !important;
+      margin-bottom: 8px !important;
+    }
+    .premium-html {
+      font-size: 14px !important;
+      color: #64748b !important;
+      line-height: 1.6 !important;
+    }
+    .premium-btn {
+      border-radius: 12px !important;
+      font-weight: 700 !important;
+      font-size: 13px !important;
+      padding: 10px 18px !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+      transition: all 0.2s ease !important;
+      border: none !important;
+    }
+    .premium-btn:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+    }
+    .btn-delete-confirm { background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #fff !important; }
+    .btn-cancel-flat { background: #f1f5f9 !important; color: #475569 !important; }
+    .btn-cancel-flat:hover { background: #e2e8f0 !important; }
+
+    .reschedule-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .reschedule-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 8px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .reschedule-card:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.15);
+    }
+    .reschedule-card .days {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1d4ed8;
+    }
+    .reschedule-card .label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
     @media (max-width: 560px) {
       .header-title { align-items: start; }
       .current-datetime { font-size: .85rem; text-align: right; }
@@ -287,7 +361,6 @@
     }
 
     function timeFrom(text) {
-      // รองรับทั้ง 12:00, 12.00 และ 12:00 น.
       const direct = text.match(/(?:เวลา\s*)?([01]?\d|2[0-3])\s*[:.]\s*([0-5]\d)(?:\s*น\.?)?/i);
       if (direct) return String(direct[1]).padStart(2, '0') + ':' + direct[2];
       const map = { 'บ่ายโมง': 13, 'บ่ายสอง': 14, 'บ่ายสาม': 15, 'สี่โมงเย็น': 16, 'ห้าโมงเย็น': 17, 'หกโมงเย็น': 18, 'เก้าโมงเช้า': 9, 'สิบโมงเช้า': 10, 'สิบเอ็ดโมงเช้า': 11, 'เที่ยง': 12 };
@@ -317,70 +390,70 @@
     }
 
     function parseAppointmentDate(value) {
-  let source = normalizeThaiWords(String(value || '').replace(/\s+/g, ' ').trim());
-  const now = new Date();
+      let source = normalizeThaiWords(String(value || '').replace(/\s+/g, ' ').trim());
+      const now = new Date();
 
-  // 1. ตรวจจับ: อีก N วัน
-  const days = relativeDays(source);
-  if (days) {
-    const target = new Date();
-    target.setDate(target.getDate() + days);
-    return dateString(target);
-  }
+      // 1. ตรวจจับ: อีก N วัน
+      const days = relativeDays(source);
+      if (days) {
+        const target = new Date();
+        target.setDate(target.getDate() + days);
+        return dateString(target);
+      }
 
-  // 2. ตรวจจับ: พรุ่งนี้ / วันนี้
-  if (source.includes('พรุ่งนี้')) {
-    const target = new Date();
-    target.setDate(target.getDate() + 1);
-    return dateString(target);
-  }
-  if (source.includes('วันนี้')) {
-    return dateString(now);
-  }
+      // 2. ตรวจจับ: พรุ่งนี้ / วันนี้
+      if (source.includes('พรุ่งนี้')) {
+        const target = new Date();
+        target.setDate(target.getDate() + 1);
+        return dateString(target);
+      }
+      if (source.includes('วันนี้')) {
+        return dateString(now);
+      }
 
-  // 3. ตรวจจับ: "วันที่ 8 เดือน 9 ปี 69" (บังคับคำว่า "วันที่" นำหน้า ป้องกันเลขเบอร์โทรหลุดมาชน)
-  const speechWithWord = source.match(/วันที่\s*(\d{1,2})\s*(?:เดือน\s*|[\/\-\.])\s*(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/i);
-  if (speechWithWord) {
-    const d = Number(speechWithWord[1]);
-    const m = Number(speechWithWord[2]);
-    if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
-      const y = toGregorianYear(speechWithWord[3] || now.getFullYear());
-      return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      // 3. ตรวจจับ: "วันที่ 8 เดือน 9 ปี 69" (บังคับคำว่า "วันที่" นำหน้า ป้องกันเลขเบอร์โทรหลุดมาชน)
+      const speechWithWord = source.match(/วันที่\s*(\d{1,2})\s*(?:เดือน\s*|[\/\-\.])\s*(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/i);
+      if (speechWithWord) {
+        const d = Number(speechWithWord[1]);
+        const m = Number(speechWithWord[2]);
+        if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
+          const y = toGregorianYear(speechWithWord[3] || now.getFullYear());
+          return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        }
+      }
+
+      // 4. ตรวจจับกรณีไม่มีคำว่า "วันที่" แต่มีเว้นวรรคชัดเจน
+      const speechPattern = /(?:^|[^\d])(\d{1,2})\s*(?:เดือน\s*|[\/\-\.])\s*(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/i;
+      const speechMatch = source.match(speechPattern);
+      if (speechMatch) {
+        const d = Number(speechMatch[1]);
+        const m = Number(speechMatch[2]);
+        if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
+          const y = toGregorianYear(speechMatch[3] || now.getFullYear());
+          return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        }
+      }
+
+      // 5. ตรวจจับ: ชื่อเดือนเต็ม/ย่อ
+      const months = {
+        'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
+        'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12,
+        'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6,
+        'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12
+      };
+      const monthRegex = new RegExp('(?:วันที่\\s*)?(\\d{1,2})\\s*(?:เดือน\\s*)?(' + Object.keys(months).join('|') + ')(?:\\s*(?:ปี\\s*)?(\\d{2,4}))?', 'i');
+      const monthMatch = source.match(monthRegex);
+      if (monthMatch) {
+        const d = Number(monthMatch[1]);
+        const m = months[monthMatch[2]];
+        if (d >= 1 && d <= 31 && m) {
+          const y = toGregorianYear(monthMatch[3] || now.getFullYear());
+          return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        }
+      }
+
+      return '';
     }
-  }
-
-  // 4. ตรวจจับกรณีไม่มีคำว่า "วันที่" แต่มีเว้นวรรคชัดเจน เช่น "8 เดือน 9 ปี 69" หรือ "8/9/69"
-  const speechPattern = /(?:^|[^\d])(\d{1,2})\s*(?:เดือน\s*|[\/\-\.])\s*(\d{1,2})(?:\s*(?:ปี\s*)?(\d{2,4}))?/i;
-  const speechMatch = source.match(speechPattern);
-  if (speechMatch) {
-    const d = Number(speechMatch[1]);
-    const m = Number(speechMatch[2]);
-    if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
-      const y = toGregorianYear(speechMatch[3] || now.getFullYear());
-      return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-    }
-  }
-
-  // 5. ตรวจจับ: ชื่อเดือนเต็ม/ย่อ
-  const months = {
-    'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
-    'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12,
-    'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6,
-    'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12
-  };
-  const monthRegex = new RegExp('(?:วันที่\\s*)?(\\d{1,2})\\s*(?:เดือน\\s*)?(' + Object.keys(months).join('|') + ')(?:\\s*(?:ปี\\s*)?(\\d{2,4}))?', 'i');
-  const monthMatch = source.match(monthRegex);
-  if (monthMatch) {
-    const d = Number(monthMatch[1]);
-    const m = months[monthMatch[2]];
-    if (d >= 1 && d <= 31 && m) {
-      const y = toGregorianYear(monthMatch[3] || now.getFullYear());
-      return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-    }
-  }
-
-  return '';
-}
 
     function fillFromVoice(text) {
       const named = text.match(/((?:คุณ|พี่|ช่าง|น้อง)\s*[^,\s]+?)(?=\s*(?:เบอร์|โทรศัพท์|วันที่|วันพรุ่งนี้|พรุ่งนี้|เวลา|งาน|อาการ|ทำ|ซ่อม|เปลี่ยน|หมายเหตุ|$))/i);
@@ -400,7 +473,6 @@
       if (noteMatch) $('note').value = noteMatch[1].trim();
     }
 
-    // เมื่อพิมพ์หรือพูดผ่านแป้นพิมพ์ลงช่อง Quick Input
     $('quickInput').addEventListener('input', (e) => {
       const text = e.target.value;
       if (text.trim()) fillFromVoice(text);
@@ -436,7 +508,6 @@
       };
     }
 
-    // จัดการ Action นัดหมาย (เลื่อนวัน, เสร็จงาน, ลบ)
     function executeAction(action, rowIndex, extraParam = '') {
       toast('กำลังดำเนินการ...');
       let url = GAS_ENDPOINT + '?action=' + action + '&rowIndex=' + rowIndex + extraParam;
@@ -449,14 +520,22 @@
 
     function confirmDelete(rowIndex, name) {
       Swal.fire({
-        title: 'ยืนยันการลบ?',
-        text: `ต้องการลบนัดหมายของ "${name}" ใช่หรือไม่?`,
+        title: 'ยืนยันการลบนัดหมาย?',
+        html: `ต้องการลบรายการนัดหมายของ <strong>"${name}"</strong> ออกจากระบบใช่หรือไม่?`,
         icon: 'warning',
+        iconColor: '#ef4444',
         showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#64748b',
-        confirmButtonText: 'ใช่, ลบเลย',
-        cancelButtonText: 'ยกเลิก'
+        confirmButtonText: '🗑️ ใช่, ลบรายการ',
+        cancelButtonText: 'ยกเลิก',
+        customClass: {
+          popup: 'premium-swal',
+          title: 'premium-title',
+          htmlContainer: 'premium-html',
+          confirmButton: 'premium-btn btn-delete-confirm',
+          cancelButton: 'premium-btn btn-cancel-flat'
+        },
+        buttonsStyling: false,
+        focusCancel: true
       }).then((result) => {
         if (result.isConfirmed) {
           executeAction('delete', rowIndex);
@@ -466,27 +545,36 @@
 
     function promptReschedule(rowIndex, name) {
       Swal.fire({
-        title: 'เลื่อนนัดหมาย',
-        text: `ต้องการเลื่อนนัดของ "${name}" ออกไปกี่วัน? (เวลาเดิม)`,
-        icon: 'question',
+        title: '⏩ เลื่อนวันนัดหมาย',
+        html: `
+          <div>เลือกจำนวนวันที่ต้องการเลื่อนของ <strong>"${name}"</strong> (คงเวลาเดิม):</div>
+          <div class="reschedule-grid">
+            <div class="reschedule-card" onclick="Swal.close(); executeAction('reschedule', ${rowIndex}, '&days=1')">
+              <div class="days">+1 วัน</div>
+              <div class="label">วันถัดไป</div>
+            </div>
+            <div class="reschedule-card" onclick="Swal.close(); executeAction('reschedule', ${rowIndex}, '&days=2')">
+              <div class="days">+2 วัน</div>
+              <div class="label">อีก 2 วัน</div>
+            </div>
+            <div class="reschedule-card" onclick="Swal.close(); executeAction('reschedule', ${rowIndex}, '&days=3')">
+              <div class="days">+3 วัน</div>
+              <div class="label">อีก 3 วัน</div>
+            </div>
+          </div>
+        `,
+        icon: 'info',
+        iconColor: '#2563eb',
+        showConfirmButton: false,
         showCancelButton: true,
-        showDenyButton: true,
-        confirmButtonText: '➕ 1 วัน',
-        denyButtonText: '➕ 2 วัน',
-        cancelButtonText: '➕ 3 วัน',
-        confirmButtonColor: '#2563eb',
-        denyButtonColor: '#0284c7',
-        cancelButtonColor: '#0d9488',
-        showCloseButton: true,
-        footer: '<span style="color:#64748b; font-size:12px;">หรือกดกากบาทเพื่อปิด</span>'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          executeAction('reschedule', rowIndex, '&days=1');
-        } else if (result.isDenied) {
-          executeAction('reschedule', rowIndex, '&days=2');
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          executeAction('reschedule', rowIndex, '&days=3');
-        }
+        cancelButtonText: 'ปิดหน้าต่าง',
+        customClass: {
+          popup: 'premium-swal',
+          title: 'premium-title',
+          htmlContainer: 'premium-html',
+          cancelButton: 'premium-btn btn-cancel-flat'
+        },
+        buttonsStyling: false
       });
     }
 
@@ -556,8 +644,16 @@
       if (!data.name || !data.date || !data.time) {
         Swal.fire({
           icon: 'warning',
+          iconColor: '#f59e0b',
           title: 'ข้อมูลไม่ครบถ้วน',
-          text: 'กรุณากรอกชื่อ วันที่ และเวลาให้ครบถ้วนก่อนบันทึก'
+          text: 'กรุณากรอกชื่อ วันที่ และเวลาให้ครบถ้วนก่อนบันทึก',
+          customClass: {
+            popup: 'premium-swal',
+            title: 'premium-title',
+            htmlContainer: 'premium-html',
+            confirmButton: 'premium-btn btn-delete-confirm'
+          },
+          buttonsStyling: false
         });
         return;
       }
