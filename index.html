@@ -163,12 +163,12 @@
           <div class="title-yellow"><span class="badge-yellow">2</span> ข้อมูลเครื่อง</div>
 
           <!-- ปุ่มสแกนสติกเกอร์ด้วย Gemini Vision -->
-          <div style="background:#fff; border:1.5px dashed #f59e0b; border-radius:12px; padding:12px; margin-bottom:14px; text-align:center;">
-            <input type="file" id="cameraStickerInput" accept="image/*" capture="environment" style="display:none;" onchange="handleStickerImage(event)">
+          <div id="dropZoneSticker" style="background:#fff; border:1.5px dashed #f59e0b; border-radius:12px; padding:12px; margin-bottom:14px; text-align:center; transition:background 0.15s, border-color 0.15s;">
+            <input type="file" id="cameraStickerInput" accept="image/*" style="display:none;" onchange="handleStickerImage(event)">
             <button type="button" id="btnScanSticker" onclick="$('cameraStickerInput').click()" style="background:#d97706; color:#fff; border:none; padding:10px 16px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 3px 10px rgba(217,119,6,0.25);">
-              📸 แตะถ่ายรูปสติกเกอร์ใต้เครื่อง (AI แกะ ยี่ห้อ/รุ่น/SN)
+              📸 ถ่ายรูป / เลือกรูปสติกเกอร์ใต้เครื่อง (AI แกะ ยี่ห้อ/รุ่น/SN)
             </button>
-            <div id="scanStatus" style="font-size:12.5px; color:#b45309; font-weight:600; margin-top:6px;">รองรับทั้งถ่ายรูปสด และเลือกรูปจากอัลบั้ม</div>
+            <div id="scanStatus" style="font-size:12.5px; color:#b45309; font-weight:600; margin-top:6px;">แตะเพื่อถ่ายรูปสด/เลือกรูปจากคลังภาพ หรือลากไฟล์มาวางที่นี่ (PC)</div>
           </div>
 
           <div class="row">

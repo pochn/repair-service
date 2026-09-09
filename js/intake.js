@@ -96,9 +96,35 @@ if ($('quickJobInput')) {
   });
 }
 
+// รองรับการลากไฟล์ (Drag & Drop) มาวางบนกล่องสแกนสติกเกอร์
+const dropZoneSticker = $('dropZoneSticker');
+if (dropZoneSticker) {
+  ['dragenter', 'dragover'].forEach(evt => {
+    dropZoneSticker.addEventListener(evt, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZoneSticker.classList.add('dragover');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(evt => {
+    dropZoneSticker.addEventListener(evt, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZoneSticker.classList.remove('dragover');
+    });
+  });
+
+  dropZoneSticker.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) handleStickerImage(file);
+  });
+}
+
 // สแกนสติกเกอร์ใต้เครื่องด้วย Gemini Vision ผ่าน fetch
-function handleStickerImage(event) {
-  const file = event.target.files[0];
+// รับได้ทั้ง change event (จาก input file) หรือไฟล์โดยตรง (จาก drag & drop)
+function handleStickerImage(eventOrFile) {
+  const file = eventOrFile instanceof File ? eventOrFile : eventOrFile.target.files[0];
   if (!file) return;
 
   const btn = $('btnScanSticker');

@@ -88,6 +88,12 @@ h2 { margin: 0; font-size: 20px; }
   font: inherit;
   resize: none;
 }
+
+/* Drop Zone feedback when dragging a file over it */
+#dropZoneSticker.dragover {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
+}
 .quick-box textarea:focus { outline: none; border-color: var(--blue); }
 
 .voice {
