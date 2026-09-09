@@ -136,11 +136,11 @@ function fillFromVoice(text) {
   if (date) $('date').value = date;
   if (time) $('time').value = time;
 
-  const job = text.match(/(?:อาการ|งาน|ทำ|ซ่อม|เปลี่ยน)\s*([^,\n]+?)(?=\s*(?:หมายเหตุ|วันที่|เวลา|เบอร์|$))/i);
-  if (job) $('job').value = job[1].trim();
+  const job = text.match(/(?:อาการ|งาน|ทำ|ซ่อม|เปลี่ยน)\s*(.+?)(?=\s*(?:หมายเหตุ|วันที่|เวลา|เบอร์|$))/i);
+  if (job) $('job').value = job[1].replace(/^[,\s]+|[,\s]+$/g, '').trim();
 
-  const noteMatch = text.match(/หมายเหตุ\s*([^,\n]+?)(?=\s*(?:วันที่|เวลา|เบอร์|$))/i);
-  if (noteMatch) $('note').value = noteMatch[1].trim();
+  const noteMatch = text.match(/หมายเหตุ\s*(.+?)(?=\s*(?:วันที่|เวลา|เบอร์|$))/i);
+  if (noteMatch) $('note').value = noteMatch[1].replace(/^[,\s]+|[,\s]+$/g, '').trim();
 }
 
 $('quickInput').addEventListener('input', (e) => {
