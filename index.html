@@ -22,7 +22,7 @@
     <!-- Tab Navigation -->
     <div class="tabs">
       <button class="tab-btn active" id="tabBtnAppointment" onclick="switchTab('appointment')">📅 นัดหมายงาน</button>
-      <button class="tab-btn" id="tabBtnIntake" onclick="switchTab('intake')">📦 เปิด Job รับซ่อม (เร็วๆ นี้)</button>
+      <button class="tab-btn" id="tabBtnIntake" onclick="switchTab('intake')">📦 เปิด Job รับซ่อม</button>
     </div>
 
     <!-- TAB 1: Appointment System -->
@@ -36,7 +36,7 @@
 
         <div class="quick-box">
           <label for="quickInput">📱 พูดผ่านแป้นพิมพ์มือถือ (กดไมค์ที่คีย์บอร์ดพูดรวดเดียว):</label>
-          <textarea id="quickInput" placeholder="แตะที่นี่แล้วกดรูปไมค์ที่คีย์บอร์ด เช่น: คุณสมชาย 0812345678 พรุ่งนี้บ่ายสอง เปลี่ยนแบตเตอรี่"></textarea>
+          <textarea id="quickInput" placeholder="แตะที่นี่แล้วกดรูปไมค์ที่คีย์บอร์ด เช่น: คุณสมชาย 0812345678 พรุ่งนี้บ่ายสอง เปลี่ยนจอ หมายเหตุเสนอราคาแล้ว 2,300 บาท"></textarea>
         </div>
 
         <div class="voice">
@@ -89,13 +89,148 @@
       </section>
     </div>
 
-    <!-- TAB 2: Job Intake System (Staging Area) -->
+    <!-- TAB 2: Job Intake System (3-Section Color Cards) -->
     <div id="tabIntake" class="tab-content" style="display: none;">
       <section class="panel">
-        <h2>📦 ระบบเปิด Job รับซ่อมด่วน (OCR + Voice)</h2>
-        <p class="sub">พื้นที่รองรับการถ่ายภาพสติกเกอร์และบันทึกรับเครื่องเปิด Job หน้าร้าน</p>
-        <div style="text-align: center; padding: 40px 20px; color: var(--muted);">
-          🛠️ อยู่ระหว่างการเชื่อมต่อระบบเข้ากับฐานข้อมูลงานซ่อมหลัก
+        <div class="form-title">
+          <h2>➕ รับงานซ่อมใหม่</h2>
+        </div>
+        <p class="sub">เปิด Job รับเครื่องหน้าร้าน บันทึกลงระบบงานซ่อมทันที</p>
+
+        <!-- กล่องพูดรับข้อมูลรวดเดียว -->
+        <div class="quick-box">
+          <label for="quickJobInput">📱 พูดข้อมูลลูกค้ารวดเดียว:</label>
+          <textarea id="quickJobInput" placeholder="เช่น: คุณสมหมาย 0876612385 Acer Nitro เปิดติดไม่ขึ้นภาพ สายชาร์จ กระเป๋า 2500 บาท"></textarea>
+        </div>
+
+        <!-- 1. การ์ดข้อมูลลูกค้า (สีฟ้า) -->
+        <div class="intake-card card-customer">
+          <div class="title-blue"><span class="badge-blue">1</span> ข้อมูลลูกค้า</div>
+
+          <div class="row">
+            <div class="field">
+              <label>ประเภทงาน</label>
+              <div class="type-toggle">
+                <button type="button" class="type-btn active" id="btnTypeShop" onclick="setJobType('หน้าร้าน')">💻 หน้าร้าน</button>
+                <button type="button" class="type-btn" id="btnTypeOnline" onclick="setJobType('ออนไลน์')">📦 ออนไลน์</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>สถานะงานซ่อม</label>
+              <select id="jobStatus">
+                <option value="รอซ่อม" selected>รอซ่อม</option>
+                <option value="ตรวจเช็ค">ตรวจเช็ค</option>
+                <option value="ด่วน">ด่วน</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="jobCustomerName">ชื่อลูกค้า <span style="color:#ef4444;">*</span></label>
+            <input id="jobCustomerName" placeholder="ชื่อ-นามสกุล">
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="jobCustomerPhone">เบอร์โทร</label>
+              <input id="jobCustomerPhone" placeholder="08X-XXX-XXXX" inputmode="tel">
+            </div>
+            <div class="field">
+              <label for="jobShipping">บริษัทขนส่ง</label>
+              <select id="jobShipping">
+                <option value="-" selected>— ไม่มี —</option>
+                <option value="Kerry">Kerry Express</option>
+                <option value="Flash">Flash Express</option>
+                <option value="ไปรษณีย์ไทย">ไปรษณีย์ไทย</option>
+                <option value="J&T">J&T Express</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>อุปกรณ์เสริม</label>
+            <div class="accessory-tags">
+              <button type="button" class="tag-btn" onclick="toggleTag(this, 'สายชาร์จ')">🔌 สายชาร์จ</button>
+              <button type="button" class="tag-btn" onclick="toggleTag(this, 'กระเป๋า')">🎒 กระเป๋า</button>
+              <button type="button" class="tag-btn" onclick="toggleTag(this, 'Mouse')">🖱️ Mouse</button>
+            </div>
+            <input type="hidden" id="jobAccessories" value="">
+          </div>
+        </div>
+
+        <!-- 2. การ์ดข้อมูลเครื่อง (สีเหลืองทอง) -->
+        <div class="intake-card card-device">
+          <div class="title-yellow"><span class="badge-yellow">2</span> ข้อมูลเครื่อง</div>
+
+          <!-- ปุ่มสแกนสติกเกอร์ด้วย Gemini Vision -->
+          <div style="background:#fff; border:1.5px dashed #f59e0b; border-radius:12px; padding:12px; margin-bottom:14px; text-align:center;">
+            <input type="file" id="cameraStickerInput" accept="image/*" capture="environment" style="display:none;" onchange="handleStickerImage(event)">
+            <button type="button" id="btnScanSticker" onclick="$('cameraStickerInput').click()" style="background:#d97706; color:#fff; border:none; padding:10px 16px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 3px 10px rgba(217,119,6,0.25);">
+              📸 แตะถ่ายรูปสติกเกอร์ใต้เครื่อง (AI แกะ ยี่ห้อ/รุ่น/SN)
+            </button>
+            <div id="scanStatus" style="font-size:12.5px; color:#b45309; font-weight:600; margin-top:6px;">รองรับทั้งถ่ายรูปสด และเลือกรูปจากอัลบั้ม</div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="jobBrand">ยี่ห้อ</label>
+              <select id="jobBrand">
+                <option value="">— เลือก —</option>
+                <option value="Acer">Acer</option>
+                <option value="Asus">Asus</option>
+                <option value="Dell">Dell</option>
+                <option value="Lenovo">Lenovo</option>
+                <option value="HP">HP</option>
+                <option value="Apple">Apple / MacBook</option>
+                <option value="MSI">MSI</option>
+                <option value="Huawei">Huawei</option>
+                <option value="Samsung">Samsung</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="jobModel">รุ่น (MODEL)</label>
+              <input id="jobModel" placeholder="เช่น Vivobook 15, AN515">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="jobSN">SERIAL NUMBER (S/N)</label>
+            <div class="sn-group">
+              <input id="jobSN" placeholder="SN-XXXXXXXXXX">
+              <a class="btn-dell" href="javascript:void(0)" onclick="openDellSupport()">Dell Support</a>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="jobIssue">อาการเสียที่แจ้ง</label>
+            <input id="jobIssue" placeholder="ระบุอาการที่ลูกค้าแจ้ง...">
+          </div>
+
+          <div class="field">
+            <label for="jobRepairPoint">จุดซ่อม</label>
+            <input id="jobRepairPoint" placeholder="เช่น เปลี่ยนจอ, แป้นพิมพ์, เมนบอร์ด">
+          </div>
+
+          <div class="field">
+            <label for="jobNote">หมายเหตุ</label>
+            <input id="jobNote" placeholder="หมายเหตุเพิ่มเติม...">
+          </div>
+        </div>
+
+        <!-- 3. การ์ดข้อมูลการเงิน (สีชมพูแดง) -->
+        <div class="intake-card card-finance">
+          <div class="title-red"><span class="badge-red">3</span> ข้อมูลการเงิน</div>
+          <div class="field">
+            <label for="jobPrice">💰 รายรับจากลูกค้า (฿) / ราคาเสนอซ่อม</label>
+            <input id="jobPrice" placeholder="0" inputmode="numeric">
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bottom-bar">
+          <button type="button" class="btn-cancel" onclick="resetJobForm()">ยกเลิก</button>
+          <button type="button" class="btn-save-job" id="btnSaveJob" onclick="submitRepairJob()">💾 บันทึก</button>
         </div>
       </section>
     </div>
@@ -104,7 +239,8 @@
   <div id="toast"></div>
   <iframe name="saveTarget" id="saveTarget" hidden></iframe>
 
-  <!-- External Script -->
+  <!-- Scripts -->
   <script src="js/appointment.js"></script>
+  <script src="js/intake.js"></script>
 </body>
 </html>

@@ -282,3 +282,72 @@ input:focus { outline: 0; border-color: var(--blue); box-shadow: 0 0 0 3px #bfdb
   .current-datetime { font-size: .85rem; text-align: right; }
   .row { grid-template-columns: 1fr; }
 }
+
+/* ========================================
+   MODERN 3-SECTION INTAKE FORM THEME
+   ======================================== */
+.intake-card {
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid transparent;
+}
+
+/* 1. ฟ้า */
+.card-customer { background: #f0f7ff; border-color: #bae0fd; }
+.badge-blue {
+  background: #2563eb; color: #fff; width: 24px; height: 24px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; margin-right: 6px;
+}
+.title-blue { color: #1d4ed8; font-size: 16px; font-weight: 800; display: flex; align-items: center; margin-bottom: 14px; }
+
+/* 2. เหลืองทอง */
+.card-device { background: #fffdf2; border-color: #fef08a; }
+.badge-yellow {
+  background: #d97706; color: #fff; width: 24px; height: 24px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; margin-right: 6px;
+}
+.title-yellow { color: #b45309; font-size: 16px; font-weight: 800; display: flex; align-items: center; margin-bottom: 14px; }
+
+/* 3. ชมพูแดง */
+.card-finance { background: #fff5f5; border-color: #fecdd3; }
+.badge-red {
+  background: #e11d48; color: #fff; width: 24px; height: 24px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; margin-right: 6px;
+}
+.title-red { color: #be123c; font-size: 16px; font-weight: 800; display: flex; align-items: center; margin-bottom: 14px; }
+
+.intake-card select {
+  width: 100%; padding: 11px; border: 1px solid var(--line); border-radius: 10px; font: inherit; color: var(--ink); background: #fff;
+}
+.intake-card select:focus { outline: 0; border-color: var(--blue); box-shadow: 0 0 0 3px #bfdbfe; }
+
+/* ป้ายแท็กอุปกรณ์เสริม */
+.accessory-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.tag-btn {
+  border: 1px solid #cbd5e1; background: #ffffff; color: #334155; padding: 7px 14px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;
+}
+.tag-btn.active { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+
+/* ปุ่มเลือกประเภทงาน หน้าร้าน/ออนไลน์ */
+.type-toggle { display: flex; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; background: #fff; }
+.type-btn {
+  flex: 1; border: none; background: transparent; padding: 9px 8px; font-size: 13px; font-weight: 700; color: #64748b; cursor: pointer;
+}
+.type-btn.active { background: #2563eb; color: #ffffff; }
+
+/* ช่อง S/N + Dell Support */
+.sn-group { display: flex; gap: 8px; }
+.btn-dell {
+  background: #f1f5f9; border: 1px solid #cbd5e1; color: #2563eb; padding: 0 14px; border-radius: 10px;
+  font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center;
+}
+
+/* ปุ่มด้านล่าง */
+.bottom-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; gap: 12px; }
+.btn-cancel { border: 1px solid #cbd5e1; background: #ffffff; color: #475569; padding: 12px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.btn-save-job {
+  flex: 1; background: #2563eb; border: none; color: #ffffff; padding: 13px 20px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer;
+}
+.btn-save-job:hover { background: #1d4ed8; }
