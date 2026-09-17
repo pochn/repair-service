@@ -143,6 +143,19 @@ function fillFromVoice(text) {
   if (noteMatch) $('note').value = noteMatch[1].replace(/^[,\s]+|[,\s]+$/g, '').trim();
 }
 
+function clearAppointmentForm() {
+  if ($('voiceBtn').classList.contains('listening')) recognition.stop();
+  ['name', 'phone', 'date', 'time', 'job', 'note', 'quickInput'].forEach(id => $(id).value = '');
+  $('preview').textContent = '';
+  $('voiceStatus').textContent = 'แตะเพื่อพูดบันทึกนัดหมาย (สำหรับคอมพิวเตอร์)';
+}
+
+function clearCurrentForm() {
+  if ($('tabIntake').style.display !== 'none') resetJobForm();
+  else clearAppointmentForm();
+  toast('ล้างฟอร์มแล้ว ✅');
+}
+
 $('quickInput').addEventListener('input', (e) => {
   const text = e.target.value;
   if (text.trim()) fillFromVoice(text);

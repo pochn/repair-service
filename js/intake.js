@@ -4,6 +4,33 @@
 
 let selectedChannel = 'หน้าร้าน';
 let selectedAccessories = new Set();
+let serialCopyTimer = null;
+
+function normalizeSerialNumber(value) {
+  return String(value || '').replace(/\s+/g, '');
+}
+
+function copySerialNumber() {
+  const input = $('jobSN');
+  const value = normalizeSerialNumber(input.value);
+  if (!value) return;
+
+  input.value = value;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(value).catch(() => {});
+    return;
+  }
+
+  const fallback = document.createElement('textarea');
+  fallback.value = value;
+  fallback.setAttribute('readonly', '');
+  fallback.style.position = 'fixed';
+  fallback.style.opacity = '0';
+  document.body.appendChild(fallback);
+  fallback.select();
+  try { document.execCommand('copy'); } catch (_) {}
+  fallback.remove();
+}
 
 function setJobType(type) {
   selectedChannel = type;
@@ -93,6 +120,16 @@ function parseJobVoice(text) {
 if ($('quickJobInput')) {
   $('quickJobInput').addEventListener('input', (e) => {
     if (e.target.value.trim()) parseJobVoice(e.target.value);
+  });
+}
+
+if ($('jobSN')) {
+  $('jobSN').addEventListener('input', (e) => {
+    const normalized = normalizeSerialNumber(e.target.value);
+    if (e.target.value !== normalized) e.target.value = normalized;
+
+    clearTimeout(serialCopyTimer);
+    serialCopyTimer = setTimeout(copySerialNumber, 800);
   });
 }
 

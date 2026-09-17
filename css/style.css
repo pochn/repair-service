@@ -97,6 +97,7 @@ h2 { margin: 0; font-size: 20px; }
 .quick-box textarea:focus { outline: none; border-color: var(--blue); }
 
 .voice {
+  position: relative;
   display: grid;
   place-items: center;
   background: var(--soft);
@@ -106,6 +107,21 @@ h2 { margin: 0; font-size: 20px; }
   margin-bottom: 18px;
   text-align: center;
 }
+.clear-form-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 9px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--blue-dark);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.clear-form-btn:hover { background: #dbeafe; }
 #voiceBtn {
   width: 70px;
   height: 70px;
