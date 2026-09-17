@@ -1,17 +1,25 @@
 const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwp3NYz2WONBWBmtZoKT3hizu_hsqPik6_pYdKAfRoTP2NAJLq73tr2whgqGLPrLXSg/exec';
 let recognition = null, speechTimeout = null, voiceCopyTimer = null;
+let editingRowIndex = null;
+let appointmentRecords = {};
 const $ = id => document.getElementById(id);
 
-function copyVoicePreview() {
+function copyVoicePreview(showToast = true) {
   const preview = $('preview');
   const text = preview.textContent.trim();
   if (!text) return;
 
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).catch(() => {});
+    navigator.clipboard.writeText(text)
+      .then(() => { if (showToast) toast('คัดลอกข้อมูลลงคลิปบอร์ดแล้ว ✅'); })
+      .catch(() => copyVoicePreviewFallback(text, showToast));
     return;
   }
 
+  copyVoicePreviewFallback(text, showToast);
+}
+
+function copyVoicePreviewFallback(text, showToast) {
   const fallback = document.createElement('textarea');
   fallback.value = text;
   fallback.setAttribute('readonly', '');
@@ -19,13 +27,15 @@ function copyVoicePreview() {
   fallback.style.opacity = '0';
   document.body.appendChild(fallback);
   fallback.select();
-  try { document.execCommand('copy'); } catch (_) {}
+  try {
+    if (document.execCommand('copy') && showToast) toast('คัดลอกข้อมูลลงคลิปบอร์ดแล้ว ✅');
+  } catch (_) {}
   fallback.remove();
 }
 
 function scheduleVoicePreviewCopy() {
   clearTimeout(voiceCopyTimer);
-  voiceCopyTimer = setTimeout(copyVoicePreview, 800);
+  voiceCopyTimer = setTimeout(() => copyVoicePreview(false), 800);
 }
 
 // สลับแท็บหน้าจอ (นัดหมาย / รับซ่อม)
@@ -188,9 +198,11 @@ function fillFromVoice(text) {
 
 function clearAppointmentForm() {
   if ($('voiceBtn').classList.contains('listening')) recognition.stop();
+  editingRowIndex = null;
   ['name', 'phone', 'date', 'time', 'job', 'note', 'quickInput'].forEach(id => $(id).value = '');
   $('preview').textContent = '';
   $('voiceStatus').textContent = 'แตะเพื่อพูดบันทึกนัดหมาย (สำหรับคอมพิวเตอร์)';
+  $('saveBtn').textContent = '💾 บันทึกนัดหมาย';
 }
 
 function clearCurrentForm() {
@@ -307,8 +319,26 @@ function promptReschedule(rowIndex, name) {
   });
 }
 
+function editAppointment(rowIndex) {
+  const item = appointmentRecords[rowIndex];
+  if (!item) return;
+
+  editingRowIndex = rowIndex;
+  $('name').value = item.name || '';
+  $('phone').value = item.phone || '';
+  $('date').value = parseAppointmentDate(item.date || '');
+  $('time').value = item.time || '';
+  $('job').value = item.job || '';
+  $('note').value = item.note || '';
+  $('saveBtn').textContent = '✏️ บันทึกการแก้ไข';
+  $('tabAppointment').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast('โหลดข้อมูลนัดหมายสำหรับแก้ไขแล้ว');
+}
+
 function renderAppointments(items, todayKey, tomorrowKey) {
   const list = $('appointmentList');
+  appointmentRecords = {};
+  (items || []).forEach(item => { appointmentRecords[item.rowIndex] = item; });
   const todayItems = (items || []).filter(item => item.date === todayKey);
   const tomorrowItems = (items || []).filter(item => item.date === tomorrowKey);
 
@@ -328,6 +358,7 @@ function renderAppointments(items, todayKey, tomorrowKey) {
           <a class="btn-act btn-call" href="tel:${item.phone}">📞 โทร</a>
         </div>
         <div class="actions-bar">
+          <button class="btn-act btn-edit" onclick="editAppointment(${item.rowIndex})">✏️ แก้ไขข้อมูล</button>
           <button class="btn-act btn-finish" onclick="executeAction('updateStatus', ${item.rowIndex}, '&status=เสร็จสิ้น')">✅ เสร็จงาน</button>
           <button class="btn-act btn-reschedule" onclick="promptReschedule(${item.rowIndex}, '${item.name}')">⏩ เลื่อนนัด</button>
           <button class="btn-act btn-del" onclick="confirmDelete(${item.rowIndex}, '${item.name}')">🗑️ ลบ</button>
@@ -391,11 +422,15 @@ function save() {
   button.disabled = true;
   button.textContent = 'กำลังบันทึก...';
 
-  const query = new URLSearchParams(data).toString();
+  const request = editingRowIndex === null
+    ? data
+    : { action: 'updateAppointment', rowIndex: editingRowIndex, ...data };
+  const query = new URLSearchParams(request).toString();
   $('saveTarget').onload = () => {
     button.disabled = false;
     button.textContent = '💾 บันทึกนัดหมาย';
     toast('บันทึกเรียบร้อยแล้ว ✅');
+    editingRowIndex = null;
     ['name', 'phone', 'date', 'time', 'job', 'note', 'quickInput'].forEach(id => $(id).value = '');
     loadSummary();
   };

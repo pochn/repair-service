@@ -213,6 +213,7 @@ input:focus { outline: 0; border-color: var(--blue); box-shadow: 0 0 0 3px #bfdb
   text-decoration: none;
 }
 .btn-call { background: #dcfce7; color: #047857; }
+.btn-edit { background: #ede9fe; color: #6d28d9; }
 .btn-finish { background: #e0f2fe; color: #0369a1; }
 .btn-reschedule { background: #fef3c7; color: #b45309; }
 .btn-del { background: #fee2e2; color: #b91c1c; }
