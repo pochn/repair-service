@@ -94,6 +94,18 @@ function parseAppointmentDate(value) {
   let source = normalizeThaiWords(String(value || '').replace(/\s+/g, ' ').trim());
   const now = new Date();
 
+  const isoMatch = source.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (isoMatch) {
+    const year = Number(isoMatch[1]);
+    const month = Number(isoMatch[2]);
+    const day = Number(isoMatch[3]);
+    const parsed = new Date(year, month - 1, day);
+    if (parsed.getFullYear() === year && parsed.getMonth() === month - 1 && parsed.getDate() === day) {
+      return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    }
+    return '';
+  }
+
   const days = relativeDays(source);
   if (days) {
     const target = new Date();
@@ -132,19 +144,24 @@ function parseAppointmentDate(value) {
   }
 
   const months = {
-    'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
-    'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12,
-    'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6,
-    'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12
+    'มกราคม': 1, 'ม.ค.': 1, 'กุมภาพันธ์': 2, 'ก.พ.': 2, 'มีนาคม': 3, 'มี.ค.': 3,
+    'เมษายน': 4, 'เม.ย.': 4, 'พฤษภาคม': 5, 'พ.ค.': 5, 'มิถุนายน': 6, 'มิ.ย.': 6,
+    'กรกฎาคม': 7, 'ก.ค.': 7, 'สิงหาคม': 8, 'ส.ค.': 8, 'กันยายน': 9, 'กันยา': 9,
+    'ก.ย.': 9, 'ตุลาคม': 10, 'ต.ค.': 10, 'พฤศจิกายน': 11, 'พ.ย.': 11, 'ธันวาคม': 12, 'ธ.ค.': 12
   };
-  const monthRegex = new RegExp('(?:วันที่\\s*)?(\\d{1,2})\\s*(?:เดือน\\s*)?(' + Object.keys(months).join('|') + ')(?:\\s*(?:ปี\\s*)?(\\d{2,4}))?', 'i');
+  const monthNames = Object.keys(months).sort((a, b) => b.length - a.length).join('|');
+  const monthRegex = new RegExp('(?:วันที่\\s*)?(\\d{1,2})\\s*(?:เดือน\\s*)?(' + monthNames + ')(?:\\s*(?:ปี\\s*)?(\\d{2,4}))?', 'i');
   const monthMatch = source.match(monthRegex);
   if (monthMatch) {
     const d = Number(monthMatch[1]);
-    const m = months[monthMatch[2]];
+    const monthName = Object.keys(months).find(name => name.toLowerCase() === monthMatch[2].toLowerCase());
+    const m = monthName ? months[monthName] : 0;
     if (d >= 1 && d <= 31 && m) {
       const y = toGregorianYear(monthMatch[3] || now.getFullYear());
-      return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      const parsed = new Date(y, m - 1, d);
+      if (parsed.getFullYear() === y && parsed.getMonth() === m - 1 && parsed.getDate() === d) {
+        return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      }
     }
   }
 
