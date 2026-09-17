@@ -32,6 +32,11 @@ function copySerialNumber() {
   fallback.remove();
 }
 
+function scheduleSerialNumberCopy() {
+  clearTimeout(serialCopyTimer);
+  serialCopyTimer = setTimeout(copySerialNumber, 800);
+}
+
 function setJobType(type) {
   selectedChannel = type;
   $('btnTypeShop').classList.toggle('active', type === 'หน้าร้าน');
@@ -128,9 +133,10 @@ if ($('jobSN')) {
     const normalized = normalizeSerialNumber(e.target.value);
     if (e.target.value !== normalized) e.target.value = normalized;
 
-    clearTimeout(serialCopyTimer);
-    serialCopyTimer = setTimeout(copySerialNumber, 800);
+    scheduleSerialNumberCopy();
   });
+  $('jobSN').addEventListener('change', copySerialNumber);
+  $('jobSN').addEventListener('blur', copySerialNumber);
 }
 
 // รองรับการลากไฟล์ (Drag & Drop) มาวางบนกล่องสแกนสติกเกอร์

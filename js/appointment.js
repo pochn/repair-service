@@ -1,6 +1,32 @@
 const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwp3NYz2WONBWBmtZoKT3hizu_hsqPik6_pYdKAfRoTP2NAJLq73tr2whgqGLPrLXSg/exec';
-let recognition = null, speechTimeout = null;
+let recognition = null, speechTimeout = null, voiceCopyTimer = null;
 const $ = id => document.getElementById(id);
+
+function copyVoicePreview() {
+  const preview = $('preview');
+  const text = preview.textContent.trim();
+  if (!text) return;
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    return;
+  }
+
+  const fallback = document.createElement('textarea');
+  fallback.value = text;
+  fallback.setAttribute('readonly', '');
+  fallback.style.position = 'fixed';
+  fallback.style.opacity = '0';
+  document.body.appendChild(fallback);
+  fallback.select();
+  try { document.execCommand('copy'); } catch (_) {}
+  fallback.remove();
+}
+
+function scheduleVoicePreviewCopy() {
+  clearTimeout(voiceCopyTimer);
+  voiceCopyTimer = setTimeout(copyVoicePreview, 800);
+}
 
 // สลับแท็บหน้าจอ (นัดหมาย / รับซ่อม)
 function switchTab(tab) {
@@ -178,10 +204,13 @@ function setupVoice() {
     let full = '';
     for (let i = 0; i < e.results.length; i++) full += e.results[i][0].transcript;
     $('preview').textContent = full;
+    scheduleVoicePreviewCopy();
     fillFromVoice(full);
     speechTimeout = setTimeout(() => { if ($('voiceBtn').classList.contains('listening')) recognition.stop(); }, 2500);
   };
   recognition.onend = () => {
+    clearTimeout(voiceCopyTimer);
+    copyVoicePreview();
     $('voiceBtn').classList.remove('listening');
     $('voiceStatus').textContent = 'แตะเพื่อพูดบันทึกนัดหมาย (สำหรับคอมพิวเตอร์)';
   };
