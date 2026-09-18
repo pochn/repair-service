@@ -197,12 +197,16 @@ function fillFromVoice(text) {
 }
 
 function clearAppointmentForm() {
-  if ($('voiceBtn').classList.contains('listening')) recognition.stop();
+  if ($('voiceBtn') && $('voiceBtn').classList.contains('listening')) recognition.stop();
   editingRowIndex = null;
-  ['name', 'phone', 'date', 'time', 'job', 'note', 'quickInput'].forEach(id => $(id).value = '');
-  $('preview').textContent = '';
-  $('voiceStatus').textContent = 'แตะเพื่อพูดบันทึกนัดหมาย (สำหรับคอมพิวเตอร์)';
+  if ($('editRowIndex')) $('editRowIndex').value = '';
+  ['name', 'phone', 'date', 'time', 'job', 'note', 'quickInput'].forEach(id => {
+    if ($(id)) $(id).value = '';
+  });
+  if ($('preview')) $('preview').textContent = '';
+  if ($('voiceStatus')) $('voiceStatus').textContent = 'แตะเพื่อพูดบันทึกนัดหมาย (สำหรับคอมพิวเตอร์)';
   $('saveBtn').textContent = '💾 บันทึกนัดหมาย';
+  $('saveBtn').style.background = '';
 }
 
 function clearCurrentForm() {
@@ -321,18 +325,23 @@ function promptReschedule(rowIndex, name) {
 
 function editAppointment(rowIndex) {
   const item = appointmentRecords[rowIndex];
-  if (!item) return;
+  if (!item) {
+    toast('❌ ไม่พบข้อมูลนัดหมายแถวนี้');
+    return;
+  }
 
-  editingRowIndex = rowIndex;
+  editingRowIndex = Number(rowIndex);
+  if ($('editRowIndex')) $('editRowIndex').value = rowIndex;
   $('name').value = item.name || '';
-  $('phone').value = item.phone || '';
+  $('phone').value = item.phone ? String(item.phone).replace(/^'/, '') : '';
   $('date').value = parseAppointmentDate(item.date || '');
   $('time').value = item.time || '';
   $('job').value = item.job || '';
   $('note').value = item.note || '';
-  $('saveBtn').textContent = '✏️ บันทึกการแก้ไข';
+  $('saveBtn').textContent = '✏️ บันทึกการแก้ไข (แถวที่ ' + rowIndex + ')';
+  $('saveBtn').style.background = '#d97706';
   $('tabAppointment').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  toast('โหลดข้อมูลนัดหมายสำหรับแก้ไขแล้ว');
+  toast('📌 โหลดข้อมูลของ ' + item.name + ' มาแก้ไขแล้ว');
 }
 
 function renderAppointments(items, todayKey, tomorrowKey) {
@@ -392,6 +401,10 @@ function loadSummary() {
 }
 
 function save() {
+  const activeRowIndex = $('editRowIndex') && $('editRowIndex').value
+    ? Number($('editRowIndex').value)
+    : editingRowIndex;
+
   const data = {
     name: $('name').value.trim(),
     phone: $('phone').value.trim(),
@@ -420,18 +433,18 @@ function save() {
 
   const button = $('saveBtn');
   button.disabled = true;
-  button.textContent = 'กำลังบันทึก...';
+  button.textContent = activeRowIndex ? 'กำลังบันทึกการแก้ไข...' : 'กำลังบันทึก...';
 
-  const request = editingRowIndex === null
-    ? data
-    : { action: 'updateAppointment', rowIndex: editingRowIndex, ...data };
+  const request = activeRowIndex
+    ? { action: 'updateAppointment', rowIndex: activeRowIndex, ...data }
+    : { action: 'addAppointment', ...data };
   const query = new URLSearchParams(request).toString();
   $('saveTarget').onload = () => {
     button.disabled = false;
     button.textContent = '💾 บันทึกนัดหมาย';
-    toast('บันทึกเรียบร้อยแล้ว ✅');
-    editingRowIndex = null;
-    ['name', 'phone', 'date', 'time', 'job', 'note', 'quickInput'].forEach(id => $(id).value = '');
+    button.style.background = '';
+    toast(activeRowIndex ? 'แก้ไขนัดหมายเรียบร้อยแล้ว ✅' : 'บันทึกเรียบร้อยแล้ว ✅');
+    clearAppointmentForm();
     loadSummary();
   };
   $('saveTarget').src = GAS_ENDPOINT + '?' + query;
