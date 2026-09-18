@@ -99,10 +99,22 @@
         <p class="sub">เปิด Job รับเครื่องหน้าร้าน บันทึกลงระบบงานซ่อมทันที</p>
 
         <!-- กล่องพูดรับข้อมูลรวดเดียว -->
+        <!-- TAB 2: Job Intake System -->
+        <!-- กล่องพูดรับข้อมูลรวดเดียว (แป้นพิมพ์ + ไมโครโฟนหน้าเว็บ) -->
         <div class="quick-box">
-          <label for="quickJobInput">📱 พูดข้อมูลลูกค้ารวดเดียว:</label>
+          <label for="quickJobInput">📱 พูดข้อมูลลูกค้ารวดเดียว (ผ่านแป้นพิมพ์มือถือ):</label>
           <textarea id="quickJobInput" placeholder="เช่น: คุณสมหมาย 0876612385 Acer Nitro เปิดติดไม่ขึ้นภาพ สายชาร์จ กระเป๋า 2500 บาท"></textarea>
         </div>
+
+        <!-- 🎙️ ปุ่มไมโครโฟนหน้าเว็บสำหรับเปิด Job (เพิ่มใหม่) -->
+        <div class="voice" style="margin-bottom: 16px;">
+          <button id="clearJobFormBtn" class="clear-form-btn" type="button" onclick="resetJobForm()" aria-label="ล้างฟอร์ม">🧹 ล้างฟอร์ม</button>
+          <button id="voiceJobBtn" type="button" aria-label="เริ่มพูดเปิด Job">🎙️</button>
+          <div id="voiceJobStatus">แตะไมค์เพื่อพูดเปิด Job (สำหรับคอมพิวเตอร์ / เบราว์เซอร์)</div>
+          <div id="jobPreview" style="width: 100%; min-height: 20px; margin-top: 6px; text-align: left; font-size: 13px; word-break: break-word; color: #1e293b;"></div>
+        </div>
+
+        <!-- 1. การ์ดข้อมูลลูกค้า (สีฟ้า) -->
 
         <!-- 1. การ์ดข้อมูลลูกค้า (สีฟ้า) -->
         <div class="intake-card card-customer">

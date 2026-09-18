@@ -5,6 +5,8 @@
 let selectedChannel = 'หน้าร้าน';
 let selectedAccessories = new Set();
 let serialCopyTimer = null;
+let jobRecognition = null;
+let jobSpeechTimeout = null;
 
 function normalizeSerialNumber(value) {
   return String(value || '').replace(/\s+/g, '');
@@ -61,66 +63,231 @@ function openDellSupport() {
 }
 
 function resetJobForm() {
+  if ($('voiceJobBtn') && $('voiceJobBtn').classList.contains('listening')) {
+    if (jobRecognition) jobRecognition.stop();
+  }
   ['jobCustomerName', 'jobCustomerPhone', 'jobModel', 'jobSN', 'jobIssue', 'jobRepairPoint', 'jobNote', 'jobPrice', 'quickJobInput'].forEach(id => {
     if ($(id)) $(id).value = '';
   });
+  if ($('jobPreview')) $('jobPreview').textContent = '';
+  if ($('voiceJobStatus')) $('voiceJobStatus').textContent = 'แตะไมค์เพื่อพูดเปิด Job (สำหรับคอมพิวเตอร์ / เบราว์เซอร์)';
+
   $('jobBrand').value = '';
   $('jobShipping').value = '-';
+  // กำหนดสถานะเป็น 'รอซ่อม' เป็นค่าเริ่มต้นเสมอ
   $('jobStatus').value = 'รอซ่อม';
+
   selectedAccessories.clear();
   document.querySelectorAll('.accessory-tags .tag-btn').forEach(btn => btn.classList.remove('active'));
   $('jobAccessories').value = '';
   setJobType('หน้าร้าน');
-  if ($('scanStatus')) $('scanStatus').textContent = 'รองรับทั้งถ่ายรูปสด และเลือกรูปจากอัลบั้ม';
+  if ($('scanStatus')) $('scanStatus').textContent = 'แตะเพื่อถ่ายรูปสด/เลือกรูปจากคลังภาพ หรือลากไฟล์มาวางที่นี่ (PC)';
 }
 
+// ----------------------------------------------------
+// ระบบวิเคราะห์เสียงพูดแล้วหยอดค่าลงฟอร์มอัตโนมัติ
+// ----------------------------------------------------
 function parseJobVoice(text) {
+  if (!text) return;
   const clean = normalizeThaiWords(text);
 
-  // 1. ชื่อ
-  const named = clean.match(/((?:คุณ|พี่|ช่าง|น้อง)\s*[^,\s]+?)(?=\s*(?:เบอร์|โทรศัพท์|อาการ|งาน|รุ่น|ยี่ห้อ|อุปกรณ์|มี|ราคา|เสนอราคา|หมายเหตุ|$))/i);
-  const fallbackName = clean.match(/(?:ชื่อลูกค้า|ลูกค้า)\s*([^,\n]+?)(?=\s*(?:เบอร์|โทรศัพท์|อาการ|งาน|รุ่น|ยี่ห้อ|อุปกรณ์|มี|ราคา|เสนอราคา|หมายเหตุ|$))/i);
-  if (named) $('jobCustomerName').value = named[1].trim();
-  else if (fallbackName) $('jobCustomerName').value = fallbackName[1].trim();
+  // 1. ดึงชื่อลูกค้า (คำนำหน้า คุณ/พี่/ช่าง/น้อง หรือ ลูกค้าชื่อ...)
+  const named = clean.match(/((?:คุณ|พี่|ช่าง|น้อง)\s*[ก-๙a-zA-Z]+)/i);
+  const fallbackName = clean.match(/(?:ชื่อลูกค้า|ลูกค้า)\s*([ก-๙a-zA-Z]+)/i);
+  if (named) {
+    $('jobCustomerName').value = named[1].trim();
+  } else if (fallbackName) {
+    $('jobCustomerName').value = fallbackName[1].trim();
+  }
 
-  // 2. เบอร์โทร
+  // 2. เบอร์โทรศัพท์ (ฟังก์ชัน phoneFrom จาก appointment.js)
   const phone = phoneFrom(clean);
-  if (phone) $('jobCustomerPhone').value = phone;
+  if (phone) {
+    $('jobCustomerPhone').value = phone;
+  }
 
-  // 3. ยี่ห้อ
-  const brands = ['Acer', 'Asus', 'Dell', 'Lenovo', 'HP', 'Apple', 'MSI', 'Huawei', 'Samsung'];
+  // 3. ยี่ห้อเครื่อง (Brand)
+  const brands = [
+    { key: 'acer', name: 'Acer' },
+    { key: 'asus', name: 'Asus' },
+    { key: 'dell', name: 'Dell' },
+    { key: 'lenovo', name: 'Lenovo' },
+    { key: 'hp', name: 'HP' },
+    { key: 'apple', name: 'Apple' },
+    { key: 'macbook', name: 'Apple' },
+    { key: 'msi', name: 'MSI' },
+    { key: 'huawei', name: 'Huawei' },
+    { key: 'samsung', name: 'Samsung' }
+  ];
   for (const b of brands) {
-    if (new RegExp(b, 'i').test(clean)) {
-      $('jobBrand').value = b;
+    if (new RegExp(b.key, 'i').test(clean)) {
+      $('jobBrand').value = b.name;
       break;
     }
   }
 
-  // 4. อาการเสีย
-  const issueMatch = clean.match(/(?:อาการ|เป็นอะไร|เสีย|ปัญหา)\s*([^,\n]+?)(?=\s*(?:อุปกรณ์|มี|สายชาร์จ|กระเป๋า|ราคา|เสนอราคา|เบอร์|หมายเหตุ|$))/i);
-  if (issueMatch) $('jobIssue').value = issueMatch[1].trim();
+  // 4. อุปกรณ์เสริม (ตรวจจับคำว่า สายชาร์จ, กระเป๋า, เมาส์/Mouse)
+  const accMap = [
+    { words: ['สายชาร์จ', 'อะแดปเตอร์', 'adapter'], tag: 'สายชาร์จ' },
+    { words: ['กระเป๋า', 'ซอง'], tag: 'กระเป๋า' },
+    { words: ['เมาส์', 'mouse'], tag: 'Mouse' }
+  ];
 
-  // 5. อุปกรณ์เสริม
-  const accWords = ['สายชาร์จ', 'กระเป๋า', 'Mouse', 'เมาส์'];
-  accWords.forEach(w => {
-    if (new RegExp(w, 'i').test(clean)) {
-      const actualTag = (w === 'เมาส์') ? 'Mouse' : w;
-      selectedAccessories.add(actualTag);
-      document.querySelectorAll('.accessory-tags .tag-btn').forEach(btn => {
-        if (btn.textContent.includes(actualTag)) btn.classList.add('active');
-      });
+  accMap.forEach(item => {
+    const hasWord = item.words.some(w => new RegExp(w, 'i').test(clean));
+    if (hasWord) {
+      selectedAccessories.add(item.tag);
     }
+  });
+
+  // อัปเดตสถานะปุ่ม Tag อุปกรณ์เสริมบนหน้าเว็บ
+  document.querySelectorAll('.accessory-tags .tag-btn').forEach(btn => {
+    selectedAccessories.forEach(tag => {
+      if (btn.textContent.includes(tag)) btn.classList.add('active');
+    });
   });
   $('jobAccessories').value = Array.from(selectedAccessories).join(', ');
 
-  // 6. ราคาเสนอซ่อม (ไม่ตัดที่คอมมา)
-  const priceMatch = clean.match(/(?:ราคา|เสนอราคา|ประเมิน|ค่าซ่อม)\s*([\d,]+)(?:\s*บาท)?/i);
-  if (priceMatch) $('jobPrice').value = priceMatch[1].replace(/,/g, '').trim();
+  // 5. ราคาประเมิน / ราคาเสนอซ่อม
+  const priceMatch = clean.match(/(?:ราคา|เสนอราคา|ค่าซ่อม|ยอด|ประมาณ|คิด)\s*([\d,]+)(?:\s*บาท)?/i);
+  if (priceMatch) {
+    $('jobPrice').value = priceMatch[1].replace(/,/g, '').trim();
+  }
+
+  // 6. อาการเสีย (ดึงข้อความหลังคำว่า อาการ/เปิดไม่ติด/เสีย/จอแตก ฯลฯ)
+  const issueMatch = clean.match(/(?:อาการ|เป็นอะไร|เสีย|ปัญหา|งาน)\s*([^,\n]+?)(?=\s*(?:อุปกรณ์|มี|สายชาร์จ|กระเป๋า|ราคา|เสนอราคา|เบอร์|โทร|หมายเหตุ|$))/i);
+  if (issueMatch) {
+    $('jobIssue').value = issueMatch[1].trim();
+  }
 
   // 7. หมายเหตุ
   const noteMatch = clean.match(/หมายเหตุ\s*(.+)$/i);
-  if (noteMatch) $('jobNote').value = noteMatch[1].replace(/^[,\s]+|[,\s]+$/g, '').trim();
+  if (noteMatch) {
+    $('jobNote').value = noteMatch[1].replace(/^[,\s]+|[,\s]+$/g, '').trim();
+  }
+
+  // กำหนดสถานะงานเป็น "รอซ่อม" อัตโนมัติเสมอ
+  $('jobStatus').value = 'รอซ่อม';
 }
+
+// ----------------------------------------------------
+// ติดตั้งตัวรับเสียง Web Speech API ให้กับแท็บที่ 2
+// ----------------------------------------------------
+// ========================================
+// REPAIR JOB INTAKE - VOICE CONTROLLER
+// ========================================
+
+// กำหนด $ กรณีที่ appointment.js ยังไม่ได้ประกาศ
+if (typeof window.$ === 'undefined') {
+  window.$ = id => document.getElementById(id);
+}
+
+function setupJobVoice() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('voiceJobBtn');
+  const status = document.getElementById('voiceJobStatus');
+  const preview = document.getElementById('jobPreview');
+
+  if (!btn || !status) return;
+
+  if (!SpeechRec) {
+    status.textContent = '❌ เบราว์เซอร์นี้ไม่รองรับการฟังเสียง (แนะนำให้ใช้ Google Chrome)';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    return;
+  }
+
+  try {
+    jobRecognition = new SpeechRec();
+    jobRecognition.lang = 'th-TH';
+    jobRecognition.continuous = true;
+    jobRecognition.interimResults = true;
+
+    jobRecognition.onstart = () => {
+      btn.classList.add('listening');
+      status.textContent = '🔴 กำลังฟัง... พูดชื่อ อาการ ยี่ห้อ ราคา ได้เลยครับ';
+    };
+
+    jobRecognition.onresult = (e) => {
+      clearTimeout(jobSpeechTimeout);
+      let full = '';
+      for (let i = 0; i < e.results.length; i++) {
+        full += e.results[i][0].transcript;
+      }
+
+      if (preview) preview.textContent = full;
+      const quickInput = document.getElementById('quickJobInput');
+      if (quickInput) quickInput.value = full;
+
+      // ส่งข้อความไปแกะข้อมูลลงฟอร์ม
+      parseJobVoice(full);
+
+      // เมื่อหยุดพูดเกิน 2.5 วินาที ให้ตัดจังหวะหยุดไมค์อัตโนมัติ
+      jobSpeechTimeout = setTimeout(() => {
+        if (btn.classList.contains('listening') && jobRecognition) {
+          jobRecognition.stop();
+        }
+      }, 2500);
+    };
+
+    jobRecognition.onerror = (e) => {
+      btn.classList.remove('listening');
+      if (e.error === 'not-allowed') {
+        status.textContent = '⚠️ เบราว์เซอร์ถูกบล็อกไมโครโฟน (กรุณากดอนุญาตสิทธิ์ไมค์)';
+        alert('กรุณากดอนุญาตให้เว็บไซต์ใช้งานไมโครโฟนที่แถบ URL ด้านบน');
+      } else if (e.error === 'no-speech') {
+        status.textContent = 'แตะไมค์เพื่อพูดเปิด Job (ยังไม่ได้ยินเสียงพูด)';
+      } else {
+        status.textContent = '❌ เกิดข้อผิดพลาด: ' + e.error;
+      }
+    };
+
+    jobRecognition.onend = () => {
+      btn.classList.remove('listening');
+      status.textContent = 'แตะไมค์เพื่อพูดเปิด Job (สำหรับคอมพิวเตอร์ / เบราว์เซอร์)';
+      if (typeof toast === 'function') {
+        toast('หยอดข้อมูลจากเสียงเรียบร้อย ✅');
+      }
+    };
+
+    btn.onclick = (event) => {
+      event.preventDefault();
+      if (!jobRecognition) return;
+
+      if (btn.classList.contains('listening')) {
+        jobRecognition.stop();
+      } else {
+        try {
+          jobRecognition.start();
+        } catch (err) {
+          // ป้องกันข้อผิดพลาดกรณีสั่ง start ซ้อน
+          jobRecognition.stop();
+          setTimeout(() => jobRecognition.start(), 200);
+        }
+      }
+    };
+
+  } catch (err) {
+    status.textContent = '❌ ไม่สามารถเริ่มระบบเสียงได้: ' + err.message;
+  }
+}
+
+// ผูกให้ฟังก์ชันทำงานเมื่อหน้าเว็บพร้อม และเมื่อสลับมาที่แท็บเปิด Job
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupJobVoice);
+} else {
+  setupJobVoice();
+}
+
+// Event listener เมื่อพิมพ์หรือพูดผ่านไมค์คีย์บอร์ดมือถือ
+if ($('quickJobInput')) {
+  $('quickJobInput').addEventListener('input', (e) => {
+    if (e.target.value.trim()) parseJobVoice(e.target.value);
+  });
+}
+
+// เรียกให้ระบบไมค์ทำงานเมื่อโหลดหน้า
+setupJobVoice();
 
 if ($('quickJobInput')) {
   $('quickJobInput').addEventListener('input', (e) => {
