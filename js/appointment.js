@@ -402,8 +402,8 @@ function loadSummary() {
 
 function save() {
   const activeRowIndex = $('editRowIndex') && $('editRowIndex').value
-    ? Number($('editRowIndex').value)
-    : editingRowIndex;
+    ? parseInt($('editRowIndex').value, 10)
+    : (editingRowIndex ? parseInt(editingRowIndex, 10) : null);
 
   const data = {
     name: $('name').value.trim(),
@@ -419,14 +419,7 @@ function save() {
       icon: 'warning',
       iconColor: '#f59e0b',
       title: 'ข้อมูลไม่ครบถ้วน',
-      text: 'กรุณากรอกชื่อ วันที่ และเวลาให้ครบถ้วนก่อนบันทึก',
-      customClass: {
-        popup: 'premium-swal',
-        title: 'premium-title',
-        htmlContainer: 'premium-html',
-        confirmButton: 'premium-btn btn-delete-confirm'
-      },
-      buttonsStyling: false
+      text: 'กรุณากรอกชื่อ วันที่ และเวลาให้ครบถ้วนก่อนบันทึก'
     });
     return;
   }
@@ -438,7 +431,9 @@ function save() {
   const request = activeRowIndex
     ? { action: 'updateAppointment', rowIndex: activeRowIndex, ...data }
     : { action: 'addAppointment', ...data };
+
   const query = new URLSearchParams(request).toString();
+
   $('saveTarget').onload = () => {
     button.disabled = false;
     button.textContent = '💾 บันทึกนัดหมาย';
@@ -447,6 +442,7 @@ function save() {
     clearAppointmentForm();
     loadSummary();
   };
+
   $('saveTarget').src = GAS_ENDPOINT + '?' + query;
 }
 
