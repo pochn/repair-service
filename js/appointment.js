@@ -38,19 +38,21 @@ function scheduleVoicePreviewCopy() {
   voiceCopyTimer = setTimeout(() => copyVoicePreview(false), 800);
 }
 
-// สลับแท็บหน้าจอ (นัดหมาย / รับซ่อม)
+// สลับแท็บหน้าจอ
 function switchTab(tab) {
-  if (tab === 'appointment') {
-    $('tabAppointment').style.display = 'block';
-    $('tabIntake').style.display = 'none';
-    $('tabBtnAppointment').classList.add('active');
-    $('tabBtnIntake').classList.remove('active');
-  } else if (tab === 'intake') {
-    $('tabAppointment').style.display = 'none';
-    $('tabIntake').style.display = 'block';
-    $('tabBtnAppointment').classList.remove('active');
-    $('tabBtnIntake').classList.add('active');
-  }
+  const tabs = {
+    appointment: ['tabAppointment', 'tabBtnAppointment'],
+    intake: ['tabIntake', 'tabBtnIntake'],
+    probe: ['tabIcProbe', 'tabBtnIcProbe']
+  };
+  if (!tabs[tab]) return;
+
+  if (tab !== 'probe' && typeof stopProbeVoice === 'function') stopProbeVoice();
+  Object.keys(tabs).forEach(name => {
+    const [contentId, buttonId] = tabs[name];
+    $(contentId).style.display = name === tab ? 'block' : 'none';
+    $(buttonId).classList.toggle('active', name === tab);
+  });
 }
 
 function toast(message) {
